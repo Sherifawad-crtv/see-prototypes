@@ -65,8 +65,8 @@ describe('totals', () => {
 
   it('splits shots by mode', () => {
     const s = session(
-      [item('a', 'lob', 'free'), item('b', 'bandeja', 'targeted', 'back-right')],
-      [shot('a', 'lob', 0.5, 0.5), shot('a', 'lob', 0.4, 0.5), shot('b', 'bandeja', 0.8, 0.8, true)],
+      [item('a', 'lob', 'free'), item('b', 'overhead', 'targeted', 'back-right')],
+      [shot('a', 'lob', 0.5, 0.5), shot('a', 'lob', 0.4, 0.5), shot('b', 'overhead', 0.8, 0.8, true)],
     );
     assert.deepEqual(totals(s), { total: 3, free: 2, targeted: 1 });
   });
@@ -80,17 +80,17 @@ describe('distribution', () => {
 
   it('merges sets of the same shot and sorts descending', () => {
     const s = session(
-      [item('a', 'lob', 'free'), item('b', 'vibora', 'free'), item('c', 'lob', 'free')],
+      [item('a', 'lob', 'free'), item('b', 'volley', 'free'), item('c', 'lob', 'free')],
       [
         shot('a', 'lob', 0.5, 0.5),
-        shot('b', 'vibora', 0.5, 0.5),
+        shot('b', 'volley', 0.5, 0.5),
         shot('c', 'lob', 0.5, 0.5),
         shot('c', 'lob', 0.5, 0.5),
       ],
     );
     assert.deepEqual(distribution(s, 'free'), [
       { shotId: 'lob', count: 3, pct: 75 },
-      { shotId: 'vibora', count: 1, pct: 25 },
+      { shotId: 'volley', count: 1, pct: 25 },
     ]);
     assert.deepEqual(distribution(s, 'targeted'), []);
   });
@@ -103,28 +103,28 @@ describe('onTarget', () => {
 
   it('counts only out-of-bounds shots as misses', () => {
     const s = session(
-      [item('a', 'bandeja', 'targeted', 'back-right')],
-      [shot('a', 'bandeja', 1.2, 0.8, false), shot('a', 'bandeja', 0.9, 1.3, false)],
+      [item('a', 'overhead', 'targeted', 'back-right')],
+      [shot('a', 'overhead', 1.2, 0.8, false), shot('a', 'overhead', 0.9, 1.3, false)],
     );
     const result = onTarget(s);
     assert.equal(result.hits, 0);
     assert.equal(result.total, 2);
     assert.equal(result.pct, 0);
     assert.deepEqual(result.byShot, [
-      { shotId: 'bandeja', zones: ['back-right'], hits: 0, total: 2, pct: 0 },
+      { shotId: 'overhead', zones: ['back-right'], hits: 0, total: 2, pct: 0 },
     ]);
   });
 
   it('computes hits per shot type and overall', () => {
     const s = session(
       [
-        item('a', 'bandeja', 'targeted', 'back-right'),
+        item('a', 'overhead', 'targeted', 'back-right'),
         item('b', 'lob', 'targeted', 'back-left'),
         item('c', 'serve', 'free'),
       ],
       [
-        shot('a', 'bandeja', 0.8, 0.8, true),
-        shot('a', 'bandeja', 0.2, 0.8, false),
+        shot('a', 'overhead', 0.8, 0.8, true),
+        shot('a', 'overhead', 0.2, 0.8, false),
         shot('b', 'lob', 0.2, 0.9, true),
         shot('b', 'lob', 0.3, 0.8, true),
         shot('c', 'serve', 0.5, 0.5),
@@ -137,7 +137,7 @@ describe('onTarget', () => {
     assert.deepEqual(
       result.byShot.map((row) => [row.shotId, row.hits, row.total, row.pct]),
       [
-        ['bandeja', 1, 2, 50],
+        ['overhead', 1, 2, 50],
         ['lob', 2, 2, 100],
       ],
     );
@@ -145,7 +145,7 @@ describe('onTarget', () => {
 });
 
 describe('insight', () => {
-  const cart = [item('a', 'bandeja', 'targeted', 'back-right')];
+  const cart = [item('a', 'overhead', 'targeted', 'back-right')];
 
   it('is null without targeted shots', () => {
     assert.equal(insight(empty), null);
@@ -153,47 +153,47 @@ describe('insight', () => {
   });
 
   it('celebrates a session without misses', () => {
-    const s = session(cart, [shot('a', 'bandeja', 0.8, 0.8, true)]);
+    const s = session(cart, [shot('a', 'overhead', 0.8, 0.8, true)]);
     assert.equal(insight(s), NO_MISSES_TEXT);
   });
 
   it('needs at least five misses for one shot type', () => {
-    const misses = Array.from({ length: 4 }, () => shot('a', 'bandeja', 0.75, 0.3, false));
+    const misses = Array.from({ length: 4 }, () => shot('a', 'overhead', 0.75, 0.3, false));
     assert.equal(insight(session(cart, misses)), NO_PATTERN_TEXT);
   });
 
   it('reports shots landing short of the target', () => {
-    const misses = Array.from({ length: 5 }, () => shot('a', 'bandeja', 0.75, 0.4, false));
+    const misses = Array.from({ length: 5 }, () => shot('a', 'overhead', 0.75, 0.4, false));
     assert.equal(
       insight(session(cart, misses)),
-      'Bandeja: most misses land short of the target',
+      'Overhead: most misses land short of the target',
     );
   });
 
   it('reports shots landing left of the target', () => {
-    const misses = Array.from({ length: 5 }, () => shot('a', 'bandeja', 0.45, 0.85, false));
+    const misses = Array.from({ length: 5 }, () => shot('a', 'overhead', 0.45, 0.85, false));
     assert.equal(
       insight(session(cart, misses)),
-      'Bandeja: most misses land left of the target',
+      'Overhead: most misses land left of the target',
     );
   });
 
   it('reports shots landing long, including out of bounds', () => {
-    const cartMid = [item('a', 'bandeja', 'targeted', 'mid-left')];
-    const misses = Array.from({ length: 5 }, () => shot('a', 'bandeja', 0.25, 1.2, false));
+    const cartMid = [item('a', 'overhead', 'targeted', 'mid-left')];
+    const misses = Array.from({ length: 5 }, () => shot('a', 'overhead', 0.25, 1.2, false));
     assert.equal(
       insight(session(cartMid, misses)),
-      'Bandeja: most misses land long of the target',
+      'Overhead: most misses land long of the target',
     );
   });
 
   it('reports no pattern when the average offset is small', () => {
     const misses = [
-      shot('a', 'bandeja', 0.65, 0.85, false),
-      shot('a', 'bandeja', 0.85, 0.85, false),
-      shot('a', 'bandeja', 0.75, 0.75, false),
-      shot('a', 'bandeja', 0.75, 0.95, false),
-      shot('a', 'bandeja', 0.75, 0.85, false),
+      shot('a', 'overhead', 0.65, 0.85, false),
+      shot('a', 'overhead', 0.85, 0.85, false),
+      shot('a', 'overhead', 0.75, 0.75, false),
+      shot('a', 'overhead', 0.75, 0.95, false),
+      shot('a', 'overhead', 0.75, 0.85, false),
     ];
     assert.equal(insight(session(cart, misses)), NO_PATTERN_TEXT);
   });
@@ -212,12 +212,12 @@ describe('summarise', () => {
 
   it('includes duration, distinct shots and on-target percentage', () => {
     const s = session(
-      [item('a', 'lob', 'free'), item('b', 'bandeja', 'targeted', 'back-right')],
+      [item('a', 'lob', 'free'), item('b', 'overhead', 'targeted', 'back-right')],
       [
         shot('a', 'lob', 0.5, 0.5),
         shot('a', 'lob', 0.5, 0.5),
-        shot('b', 'bandeja', 0.8, 0.8, true),
-        shot('b', 'bandeja', 0.2, 0.8, false),
+        shot('b', 'overhead', 0.8, 0.8, true),
+        shot('b', 'overhead', 0.2, 0.8, false),
       ],
       '2026-01-01T10:12:30.000Z',
     );
@@ -226,7 +226,7 @@ describe('summarise', () => {
       startedAt: T0,
       durationSec: 750,
       totalShots: 4,
-      shotIds: ['lob', 'bandeja'],
+      shotIds: ['lob', 'overhead'],
       onTargetPct: 50,
     });
   });

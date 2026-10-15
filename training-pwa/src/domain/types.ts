@@ -1,18 +1,9 @@
 export type Depth = 'front' | 'mid' | 'back';
 
-export type ShotCategory =
-  | 'Serve and return'
-  | 'Groundstrokes'
-  | 'Volleys'
-  | 'Overheads'
-  | 'Defensive and touch'
-  | 'Wall shots';
-
 export interface ShotType {
   id: string;
   label: string;
   alias?: string;
-  category: ShotCategory;
   depth: Depth;
 }
 

@@ -596,9 +596,23 @@ button.chip::after { content: ''; position: absolute; inset: -4px 0; }
 /* Add a shot */
 .mode-note { display: flex; align-items: center; gap: var(--s-12); padding: var(--s-12); border-radius: var(--r-lg); background: var(--blue-50); color: var(--blue-700); }
 .mode-note-icon { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; flex: none; border-radius: var(--r-full); background: var(--bg); color: var(--blue-500); }
-.category { display: flex; flex-direction: column; gap: var(--s-12); padding: var(--s-16); border: 1px solid var(--border); border-radius: var(--r-xl); background: var(--bg); box-shadow: var(--shadow-card); }
-.category-title { display: flex; align-items: baseline; gap: var(--s-12); }
-.category-index { color: var(--accent-strong); }
+.shot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-12); }
+.chip-block { justify-content: center; min-height: 72px; border-radius: var(--r-xl); box-shadow: var(--shadow-card); }
+.chip-block .chip-inner { flex-direction: column; align-items: center; gap: var(--s-2); }
+.chip-count {
+  position: absolute;
+  top: var(--s-8);
+  right: var(--s-8);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 var(--s-6);
+  border-radius: var(--r-full);
+  background: var(--accent);
+  color: var(--neutral-0);
+}
 
 /* Court stages */
 .court-stage { padding: var(--s-12); border: 1px solid var(--border); border-radius: var(--r-xl); background: var(--bg); box-shadow: var(--shadow-card); }

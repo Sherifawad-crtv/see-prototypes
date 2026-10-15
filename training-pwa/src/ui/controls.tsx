@@ -91,10 +91,18 @@ interface ChipProps {
   onClick?: () => void;
   children: ReactNode;
   pressed?: boolean;
+  block?: boolean;
 }
 
-export function Chip({ selected = false, accent = false, onClick, children, pressed }: ChipProps) {
-  const variant = accent ? 'chip-accent' : selected ? 'chip-selected' : '';
+export function Chip({
+  selected = false,
+  accent = false,
+  onClick,
+  children,
+  pressed,
+  block = false,
+}: ChipProps) {
+  const variant = `${accent ? 'chip-accent' : selected ? 'chip-selected' : ''}${block ? ' chip-block' : ''}`;
   const content = <span className="chip-inner">{children}</span>;
   return onClick ? (
     <button

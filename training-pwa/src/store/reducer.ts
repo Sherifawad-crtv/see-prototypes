@@ -185,7 +185,6 @@ export function reducer(state: State, action: Action): State {
           cart: [],
           shots: [],
         },
-        stack: [...state.stack, 'cart'],
       };
     case 'session/discard':
       return { ...state, session: null, sheet: null };
@@ -237,7 +236,6 @@ export function reducer(state: State, action: Action): State {
         sheet: null,
         session: { ...session, cart: [...retargeted, item] },
         draft: { ...draft, shotId: null, targetZone: null },
-        toast: { id: (state.toast?.id ?? 0) + 1, text: 'Added' },
       };
     }
     case 'cart/move':

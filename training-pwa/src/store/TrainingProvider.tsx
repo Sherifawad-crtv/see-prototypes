@@ -112,9 +112,16 @@ function createActions(
       dispatch({ type: 'draft/amount', amount });
     },
     addToCart() {
-      const { session } = getState();
-      if (!session || session.cart.length >= MAX_DRILLS) return;
+      const { session, draft } = getState();
+      if (!session || !draft.shotId || session.cart.length >= MAX_DRILLS) return;
       dispatch({ type: 'cart/add', id: uid() });
+      dispatch({
+        type: 'toast',
+        text: `Added ${shotLabel(draft.shotId)} ${amountText(draft.amount)}`,
+      });
+      nav.popTo('add');
+    },
+    viewCart() {
       nav.popTo('cart');
     },
     moveItem(id: string, dir: -1 | 1) {

@@ -1,8 +1,10 @@
-import { CATEGORIES, SHOTS } from '../domain/catalog.ts';
+import { SHOTS } from '../domain/catalog.ts';
 import type { Mode } from '../domain/types.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
-import { Chip, Tabs } from '../ui/controls.tsx';
-import { Bolt, Target } from '../ui/icons.tsx';
+import { MAX_DRILLS } from '../store/reducer.ts';
+import { Button, Chip, Tabs } from '../ui/controls.tsx';
+import { Bolt, ChevronRight, Target } from '../ui/icons.tsx';
+import { plural } from '../ui/format.ts';
 import { NavBar } from '../ui/NavBar.tsx';
 
 const MODES: { value: Mode; label: string }[] = [
@@ -17,14 +19,16 @@ export const STEPS: Record<Mode, string[]> = {
 
 export function AddShotScreen() {
   const { state, actions } = useTraining();
-  const { draft, sheet } = state;
+  const { draft, sheet, session } = state;
+  const cart = session?.cart ?? [];
+  const full = cart.length >= MAX_DRILLS;
 
   return (
     <main className="screen">
       <NavBar
         title="Add a Shot"
-        subtitle="Pick one shot type to add"
-        onBack={actions.back}
+        subtitle="Add as many as you like, then view your cart"
+        onBack={actions.viewCart}
         steps={{ current: 0, labels: STEPS[draft.mode] }}
       />
       <div className="screen-body">
@@ -37,27 +41,34 @@ export function AddShotScreen() {
               : 'Pick a zone to aim for. Every shot is scored as a hit or a miss.'}
           </p>
         </div>
-        {CATEGORIES.map((category, index) => (
-          <section key={category} className="category">
-            <h2 className="category-title">
-              <span className="t-stat-sm category-index">{String(index + 1).padStart(2, '0')}</span>
-              <span className="t-overline text-2">{category}</span>
-            </h2>
-            <div className="chip-row">
-              {SHOTS.filter((shot) => shot.category === category).map((shot) => (
-                <Chip
-                  key={shot.id}
-                  selected={sheet === 'amount' && draft.shotId === shot.id}
-                  onClick={() => actions.pickShot(shot.id)}
-                >
-                  {shot.label}
-                  {shot.alias && <span className="chip-alias t-caption">{shot.alias}</span>}
-                </Chip>
-              ))}
-            </div>
-          </section>
-        ))}
+        <div className="shot-grid">
+          {SHOTS.map((shot) => {
+            const inCart = cart.filter((item) => item.shotId === shot.id).length;
+            return (
+              <Chip
+                key={shot.id}
+                block
+                selected={sheet === 'amount' && draft.shotId === shot.id}
+                onClick={() => actions.pickShot(shot.id)}
+              >
+                {shot.label}
+                {shot.alias && <span className="chip-alias t-caption">{shot.alias}</span>}
+                {inCart > 0 && <span className="chip-count t-caption-b">{inCart}</span>}
+              </Chip>
+            );
+          })}
+        </div>
+        {full && <p className="t-body-sm text-2 center">Cart is full</p>}
       </div>
+      <footer className="bar-bottom bar-dark row-between">
+        <div>
+          <p className="t-overline">In cart</p>
+          <p className="t-h4">{plural(cart.length, 'drill')}</p>
+        </div>
+        <Button variant="accent" icon={<ChevronRight />} onClick={actions.viewCart}>
+          View cart
+        </Button>
+      </footer>
     </main>
   );
 }
