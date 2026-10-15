@@ -38,6 +38,7 @@
 
   /* Semantic */
   --bg: var(--neutral-0);
+  --canvas: var(--neutral-50);
   --surface: var(--neutral-100);
   --border: var(--neutral-200);
   --text: var(--neutral-900);
@@ -79,6 +80,17 @@
 
   /* Elevation */
   --shadow-sheet: 0 -8px 32px rgb(3 7 18 / 0.12);
+
+  /* Surfaces and effects (derived from the palette) */
+  --overlay-light: rgb(255 255 255 / 0.12);
+  --overlay-line: rgb(255 255 255 / 0.1);
+  --overlay-text: rgb(255 255 255 / 0.72);
+  --court-shade: rgb(0 18 51 / 0.16);
+  --grad-brand: linear-gradient(155deg, var(--blue-500) 0%, var(--blue-700) 100%);
+  --grad-live: linear-gradient(180deg, var(--blue-800) 0%, var(--blue-900) 100%);
+  --shadow-card: 0 1px 2px rgb(3 7 18 / 0.04), 0 8px 24px rgb(3 7 18 / 0.06);
+  --shadow-glow: 0 10px 28px rgb(255 85 26 / 0.35);
+  --pattern-court: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300' fill='none' stroke='white' stroke-opacity='0.14' stroke-width='3'%3E%3Crect x='6' y='6' width='188' height='288' rx='6'/%3E%3Cpath d='M6 150h188M100 62v176M6 62h188M6 238h188'/%3E%3C/svg%3E");
 
   /* Layers */
   --z-bar: 10;

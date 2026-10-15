@@ -4,6 +4,7 @@ import { useTraining } from '../store/TrainingProvider.tsx';
 import { Button } from '../ui/controls.tsx';
 import { Court } from '../ui/Court.tsx';
 import { NavBar } from '../ui/NavBar.tsx';
+import { STEPS } from './AddShotScreen.tsx';
 
 export function TargetScreen() {
   const { state, actions } = useTraining();
@@ -16,9 +17,10 @@ export function TargetScreen() {
         title={`Where should your ${shotLabel(draft.shotId)} land?`}
         subtitle="Tap one zone"
         onBack={actions.back}
+        steps={{ current: 1, labels: STEPS.targeted }}
       />
       <div className="screen-body">
-        <div className="court-frame">
+        <div className="court-stage">
           <Court
             mode="select"
             view="half"
@@ -26,9 +28,10 @@ export function TargetScreen() {
             onSelectZone={actions.setZone}
           />
         </div>
-        <p className="t-h4 zone-caption" aria-live="polite">
-          {draft.targetZone ? getZone(draft.targetZone).label : ''}
+        <p className="t-h3 center zone-caption" aria-live="polite">
+          {draft.targetZone ? getZone(draft.targetZone).label : 'No zone picked yet'}
         </p>
+        <p className="t-caption text-2 center">The net is at the bottom of the court.</p>
       </div>
       <footer className="bar-bottom">
         <Button full disabled={!draft.targetZone} onClick={actions.confirmTarget}>

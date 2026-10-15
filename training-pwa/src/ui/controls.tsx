@@ -145,11 +145,19 @@ export function Toggle({ checked, onChange, label }: ToggleProps) {
   );
 }
 
-export function ProgressBar({ value, label }: { value: number; label: string }) {
+export function ProgressBar({
+  value,
+  label,
+  tone = 'default',
+}: {
+  value: number;
+  label: string;
+  tone?: 'default' | 'on-dark';
+}) {
   const clamped = Math.min(100, Math.max(0, value));
   return (
     <div
-      className="progress"
+      className={`progress progress-${tone}`}
       role="progressbar"
       aria-label={label}
       aria-valuemin={0}

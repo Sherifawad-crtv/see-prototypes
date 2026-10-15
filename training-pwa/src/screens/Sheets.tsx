@@ -1,10 +1,13 @@
+import type { ReactNode } from 'react';
 import { shotLabel } from '../domain/catalog.ts';
 import { getZone } from '../domain/zones.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
 import { DEFAULT_COUNT, MAX_DRILLS } from '../store/reducer.ts';
 import { AmountControl } from '../ui/AmountControl.tsx';
 import { Button, Chip } from '../ui/controls.tsx';
+import { Plus, Play, Stop, Trash } from '../ui/icons.tsx';
 import { Sheet } from '../ui/Sheet.tsx';
+import { ZoneThumb } from '../ui/ZoneThumb.tsx';
 
 function AmountSheet() {
   const { state, actions } = useTraining();
@@ -14,11 +17,18 @@ function AmountSheet() {
 
   return (
     <Sheet title="Choose how many shots" onClose={actions.closeSheet}>
-      <div className="stack-12">
-        <h2 className="t-h3">{shotLabel(draft.shotId)}</h2>
+      <div className="sheet-head">
+        <div className="stack-4">
+          <p className="t-overline text-2">{draft.mode === 'free' ? 'Free drill' : 'Targeted drill'}</p>
+          <h2 className="t-display-md">{shotLabel(draft.shotId)}</h2>
+        </div>
         {draft.mode === 'targeted' && draft.targetZone && (
-          <div className="row">
-            <Chip accent>{getZone(draft.targetZone).label}</Chip>
+          <div className="sheet-target">
+            <ZoneThumb zone={draft.targetZone} />
+            <div className="stack-4">
+              <p className="t-overline-sm text-2">Aiming for</p>
+              <Chip accent>{getZone(draft.targetZone).label}</Chip>
+            </div>
             <Button variant="ghost" className="btn-sm" onClick={actions.changeTarget}>
               Change
             </Button>
@@ -26,15 +36,20 @@ function AmountSheet() {
         )}
       </div>
       <AmountControl
+        large
         amount={draft.amount}
         lastCount={lastCounts.draft ?? DEFAULT_COUNT}
         onChange={actions.setDraftAmount}
       />
-      <Button full disabled={full} onClick={actions.addToCart}>
+      <Button full disabled={full} icon={<Plus />} onClick={actions.addToCart}>
         Add to cart
       </Button>
     </Sheet>
   );
+}
+
+function SheetIcon({ tone, children }: { tone: 'accent' | 'brand' | 'danger'; children: ReactNode }) {
+  return <span className={`sheet-icon sheet-icon-${tone}`}>{children}</span>;
 }
 
 function EndConfirmSheet() {
@@ -42,7 +57,10 @@ function EndConfirmSheet() {
   return (
     <Sheet title="End session?" onClose={actions.closeSheet}>
       <div className="stack-8">
-        <h2 className="t-h3">End session?</h2>
+        <SheetIcon tone="accent">
+          <Stop />
+        </SheetIcon>
+        <h2 className="t-display-sm">End session?</h2>
         <p className="t-body text-2">Upcoming drills will be skipped. Shots so far are saved.</p>
       </div>
       <div className="sheet-actions">
@@ -62,7 +80,10 @@ function DiscardSheet() {
   return (
     <Sheet title="Discard this cart?" onClose={actions.closeSheet}>
       <div className="stack-8">
-        <h2 className="t-h3">Discard this cart?</h2>
+        <SheetIcon tone="danger">
+          <Trash />
+        </SheetIcon>
+        <h2 className="t-display-sm">Discard this cart?</h2>
         <p className="t-body text-2">The drills you added will be removed.</p>
       </div>
       <div className="sheet-actions">
@@ -82,7 +103,10 @@ function ResumeSheet() {
   return (
     <Sheet title="Unfinished session">
       <div className="stack-8">
-        <h2 className="t-h3">Pick up where you left off?</h2>
+        <SheetIcon tone="brand">
+          <Play />
+        </SheetIcon>
+        <h2 className="t-display-sm">Pick up where you left off?</h2>
         <p className="t-body text-2">You have a training session that was not finished.</p>
       </div>
       <div className="sheet-actions">

@@ -3,6 +3,7 @@ import { shotLabel } from '../domain/catalog.ts';
 import type { ZoneId } from '../domain/types.ts';
 import { getZone, ZONES } from '../domain/zones.ts';
 import { Tooltip } from './controls.tsx';
+import { Check } from './icons.tsx';
 
 export interface CourtDot {
   id: string;
@@ -110,12 +111,19 @@ export function Court({
           className="court-line"
           fill="none"
         />
+        <rect x={0} y={0} width={COURT_W} height={BAND} className="court-shade" />
+        {view === 'full' && (
+          <rect x={0} y={COURT_H - BAND} width={COURT_W} height={BAND} className="court-shade" />
+        )}
         <line x1={0} x2={COURT_W} y1={BAND} y2={BAND} className="court-line" />
         <line x1={50} x2={50} y1={BAND} y2={view === 'full' ? COURT_H - BAND : NET_Y} className="court-line" />
         {view === 'full' && (
           <line x1={0} x2={COURT_W} y1={COURT_H - BAND} y2={COURT_H - BAND} className="court-line" />
         )}
+        <line x1={0} x2={COURT_W} y1={NET_Y + 1.6} y2={NET_Y + 1.6} className="court-net-shadow" />
         <line x1={0} x2={COURT_W} y1={NET_Y} y2={NET_Y} className="court-net" />
+        <circle cx={0} cy={NET_Y} r={1.6} className="court-post" />
+        <circle cx={COURT_W} cy={NET_Y} r={1.6} className="court-post" />
 
         {mode === 'select' &&
           ZONES.map((zone) => {
@@ -150,15 +158,34 @@ export function Court({
           ))}
       </svg>
 
-      <span
-        className="court-label t-display-sm"
-        style={{ top: `${pct(BAND / 2, box.y, box.h)}%` }}
-      >
-        OPPONENT
-      </span>
+      {mode === 'select' &&
+        ZONES.map((zone) => {
+          const selected = selectedZone === zone.id;
+          return (
+            <span
+              key={zone.id}
+              className={`zone-label t-label-sm${selected ? ' zone-label-on' : ''}`}
+              style={{
+                left: `${pct(zone.cx * COURT_W, box.x, box.w)}%`,
+                top: `${pct(NET_Y - zone.cy * NET_Y, box.y, box.h)}%`,
+              }}
+            >
+              {selected && <Check />}
+              {zone.label}
+            </span>
+          );
+        })}
+      {mode !== 'select' && (
+        <span
+          className="court-label t-label-xs"
+          style={{ top: `${pct(BAND / 2, box.y, box.h)}%` }}
+        >
+          OPPONENT
+        </span>
+      )}
       {view === 'full' && (
         <span
-          className="court-label t-display-sm"
+          className="court-label t-label-xs"
           style={{ top: `${pct(COURT_H - BAND / 2, box.y, box.h)}%` }}
         >
           YOU

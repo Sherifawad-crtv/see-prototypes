@@ -72,3 +72,36 @@ export const Camera = () => (
     <path d="M16 10l5-3v10l-5-3" />
   </Icon>
 );
+export const Check = () => (
+  <Icon>
+    <path d="M5 12.5l4.5 4.5L19 7.5" />
+  </Icon>
+);
+export const ChevronRight = () => (
+  <Icon>
+    <path d="M9 5l7 7-7 7" />
+  </Icon>
+);
+export const Target = () => (
+  <Icon>
+    <circle cx="12" cy="12" r="9" />
+    <circle cx="12" cy="12" r="4.5" />
+    <circle cx="12" cy="12" r="0.8" fill="currentColor" />
+  </Icon>
+);
+export const Bolt = () => (
+  <Icon>
+    <path d="M13 3L5 13.5h6L10 21l8-10.5h-6z" />
+  </Icon>
+);
+export const Clock = () => (
+  <Icon>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3 2" />
+  </Icon>
+);
+export const Bulb = () => (
+  <Icon>
+    <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z" />
+  </Icon>
+);

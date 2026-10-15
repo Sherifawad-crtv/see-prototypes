@@ -11,10 +11,12 @@ import {
 import type { Mode, Session } from '../domain/types.ts';
 import { getZone } from '../domain/zones.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
-import { Chip, Divider, ProgressBar, StatCard, Tabs } from '../ui/controls.tsx';
+import { Chip, IconButton, ProgressBar, StatCard, Tabs } from '../ui/controls.tsx';
 import { Court, type CourtDot, type CourtZone } from '../ui/Court.tsx';
 import { formatDate, formatDuration, formatDurationClock, plural } from '../ui/format.ts';
-import { LargeTitleScreen } from '../ui/LargeTitleScreen.tsx';
+import { Bulb, ChevronLeft } from '../ui/icons.tsx';
+import { Ring } from '../ui/Ring.tsx';
+import { ZoneThumb } from '../ui/ZoneThumb.tsx';
 
 const MODES: { value: Mode; label: string }[] = [
   { value: 'free', label: 'Free' },
@@ -62,20 +64,26 @@ function ResultsBody({ session }: { session: Session }) {
 
   const modeTotal = mode === 'free' ? sums.free : sums.targeted;
   const totalLabel = hasBoth ? (targeted ? 'Targeted shots' : 'Free shots') : 'Total shots';
+  const headline = hasBoth ? 'Mixed session' : sums.targeted > 0 ? 'Targeted session' : 'Free session';
 
   return (
     <>
-      <div className="stack-8">
-        <p className="t-h5">{formatDate(session.startedAt)}</p>
-        <p className="t-body-sm text-2">
-          {formatDuration(summary.durationSec)} · {plural(sums.total, 'shot')} in total
-          {hasBoth && ` (Free ${sums.free} · Targeted ${sums.targeted})`}
-        </p>
-      </div>
+      <section className="hero-panel result-hero">
+        <div className="result-hero-text">
+          <p className="t-overline hero-kicker">{formatDate(session.startedAt)}</p>
+          <h2 className="t-display-md">{sums.total === 0 ? 'Session recap' : headline}</h2>
+          <p className="t-body-sm hero-copy">
+            {formatDuration(summary.durationSec)} · {plural(sums.total, 'shot')} in total
+            {hasBoth && ` (Free ${sums.free} · Targeted ${sums.targeted})`}
+          </p>
+        </div>
+        {targeted && sums.total > 0 && <Ring value={target.pct} label="On target" caption="On target" />}
+      </section>
 
       {sums.total === 0 ? (
-        <div className="card empty">
-          <p className="t-h3">No shots detected</p>
+        <div className="empty-hero">
+          <div className="empty-art" aria-hidden="true" />
+          <p className="t-display-sm">No shots detected</p>
           <p className="t-body text-2">The camera did not pick up any shots in this session.</p>
         </div>
       ) : (
@@ -85,7 +93,7 @@ function ResultsBody({ session }: { session: Session }) {
           )}
 
           <div className="hero">
-            {targeted ? (
+            {targeted && (
               <StatCard
                 variant="brand"
                 label="On target"
@@ -93,7 +101,7 @@ function ResultsBody({ session }: { session: Session }) {
                 suffix={`/ ${target.total}`}
                 delta={`${target.pct}%`}
               />
-            ) : null}
+            )}
             <StatCard label={totalLabel} value={modeTotal} />
             {!targeted && (
               <StatCard
@@ -123,7 +131,7 @@ function ResultsBody({ session }: { session: Session }) {
                 </Chip>
               ))}
             </div>
-            <div className="court-frame">
+            <div className="court-stage">
               <Court
                 mode="results"
                 view="full"
@@ -147,17 +155,20 @@ function ResultsBody({ session }: { session: Session }) {
           {targeted && (
             <section className="card stack-12">
               <h2 className="t-h4">By shot type</h2>
-              {target.byShot.map((row, index) => (
-                <div key={row.shotId} className="stack-12">
-                  {index > 0 && <Divider />}
-                  <div className="shot-row">
-                    <span className="t-label">{shotLabel(row.shotId)}</span>
-                    <span className="t-stat-sm">
-                      {row.hits} / {row.total} · {row.pct}%
-                    </span>
+              {target.byShot.map((row) => (
+                <div key={row.shotId} className="target-row">
+                  {row.zones[0] && <ZoneThumb zone={row.zones[0]} />}
+                  <div className="target-row-main">
+                    <div className="row-between">
+                      <span className="t-label">{shotLabel(row.shotId)}</span>
+                      <span className="t-stat-sm">
+                        {row.hits} / {row.total} · {row.pct}%
+                      </span>
+                    </div>
                     <span className="t-body-sm text-2">
                       {row.zones.map((zone) => getZone(zone).label).join(', ')}
                     </span>
+                    <ProgressBar label={`${shotLabel(row.shotId)} accuracy`} value={row.pct} />
                   </div>
                 </div>
               ))}
@@ -166,16 +177,20 @@ function ResultsBody({ session }: { session: Session }) {
 
           {targeted && line && (
             <p className="insight t-body" role="status">
+              <Bulb />
               {line}
             </p>
           )}
 
           <section className="card stack-16">
             <h2 className="t-h4">Distribution</h2>
-            {rows.map((row) => (
+            {rows.map((row, index) => (
               <div key={row.shotId} className="dist-row">
                 <div className="row-between">
-                  <span className="t-label">{shotLabel(row.shotId)}</span>
+                  <span className="row">
+                    <span className="t-stat-sm rank">{index + 1}</span>
+                    <span className="t-label">{shotLabel(row.shotId)}</span>
+                  </span>
                   <span className="t-stat-sm">
                     {row.count} · {row.pct}%
                   </span>
@@ -195,8 +210,15 @@ export function ResultsScreen() {
   const session = state.viewing;
 
   return (
-    <LargeTitleScreen title="Results" onBack={actions.back}>
-      {session && <ResultsBody key={session.id} session={session} />}
-    </LargeTitleScreen>
+    <main className="screen">
+      <div className="topbar">
+        <IconButton variant="secondary" label="Back" onClick={actions.back}>
+          <ChevronLeft />
+        </IconButton>
+        <h1 className="topbar-title t-h4">Results</h1>
+        <span />
+      </div>
+      <div className="screen-body">{session && <ResultsBody key={session.id} session={session} />}</div>
+    </main>
   );
 }
