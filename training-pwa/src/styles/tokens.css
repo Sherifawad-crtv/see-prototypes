@@ -1,0 +1,88 @@
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/inter-latin-wght-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/inter-latin-wght-italic.woff2') format('woff2');
+}
+
+:root {
+  /* Blue */
+  --blue-50: #E6F0FF; --blue-100: #CCE0FF; --blue-200: #99C2FF; --blue-300: #66A3FF; --blue-400: #3385FF;
+  --blue-500: #0052C9; --blue-600: #003B82; --blue-700: #002D66; --blue-800: #001F4D; --blue-900: #001233;
+  /* Orange */
+  --orange-50: #FFF3E6; --orange-100: #FFE5CC; --orange-200: #FFCC99; --orange-300: #FFB266; --orange-400: #FF9933;
+  --orange-500: #FF8B17; --orange-600: #FF551A; --orange-700: #CC4415; --orange-800: #993310; --orange-900: #66220A;
+  /* Yellow */
+  --yellow-50: #FFFBE6; --yellow-100: #FFF5CC; --yellow-200: #FFEC99; --yellow-300: #FFE266; --yellow-400: #FFD933;
+  --yellow-500: #FFCC3B; --yellow-600: #E6B800; --yellow-700: #CC9900; --yellow-800: #997300; --yellow-900: #664D00;
+  /* Neutral */
+  --neutral-0: #FFFFFF; --neutral-50: #F9FAFB; --neutral-100: #F3F4F6; --neutral-200: #E5E7EB; --neutral-300: #D1D5DB;
+  --neutral-400: #9CA3AF; --neutral-500: #6B7280; --neutral-600: #4B5563; --neutral-700: #374151; --neutral-800: #1F2937;
+  --neutral-900: #111827; --neutral-950: #030712;
+  /* Status */
+  --success-bg: #DCFCE7; --success: #22C55E;
+  --warning-bg: #FEF3C7; --warning: #F59E0B;
+  --error-bg: #FEE2E2; --error: #EF4444;
+  --info-bg: #DBEAFE; --info: #3B82F6;
+  /* Court */
+  --court: #0156ED; --court-line: #FFFFFF;
+
+  /* Semantic */
+  --bg: var(--neutral-0);
+  --surface: var(--neutral-100);
+  --border: var(--neutral-200);
+  --text: var(--neutral-900);
+  --text-2: var(--neutral-600);
+  --text-3: var(--neutral-400);
+  --primary: var(--blue-500);
+  --brand: var(--blue-600);
+  --accent: var(--orange-500);
+  --accent-strong: var(--orange-600);
+  --scrim: rgb(3 7 18 / 0.4);
+
+  /* Spacing */
+  --s-2: 2px; --s-4: 4px; --s-6: 6px; --s-8: 8px; --s-12: 12px; --s-16: 16px; --s-20: 20px;
+  --s-24: 24px; --s-32: 32px; --s-40: 40px; --s-48: 48px; --s-64: 64px; --s-80: 80px;
+  --s-96: 96px; --s-120: 120px;
+  --margin: var(--s-16);
+  --gutter: var(--s-8);
+
+  /* Radii */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-sheet: 24px;
+  --r-full: 999px;
+
+  /* Size */
+  --touch: 44px;
+  --column: 430px;
+
+  /* Type families (Obviously fallback: Inter italics) */
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Motion */
+  --sheet-ms: 250ms;
+  --dot-ms: 150ms;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Elevation */
+  --shadow-sheet: 0 -8px 32px rgb(3 7 18 / 0.12);
+
+  /* Layers */
+  --z-bar: 10;
+  --z-sheet: 30;
+  --z-toast: 40;
+  --z-dev: 50;
+}

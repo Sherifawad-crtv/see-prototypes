@@ -1,0 +1,45 @@
+import type { Amount } from '../domain/types.ts';
+import { MAX_AMOUNT, MIN_AMOUNT } from '../store/reducer.ts';
+import { IconButton, Toggle } from './controls.tsx';
+import { Minus, Plus } from './icons.tsx';
+
+interface AmountControlProps {
+  amount: Amount;
+  lastCount: number;
+  onChange: (amount: Amount) => void;
+}
+
+export function AmountControl({ amount, lastCount, onChange }: AmountControlProps) {
+  const isBasket = amount.kind === 'basket';
+  const n = amount.kind === 'count' ? amount.n : lastCount;
+  const set = (value: number) =>
+    onChange({ kind: 'count', n: Math.min(MAX_AMOUNT, Math.max(MIN_AMOUNT, value)) });
+
+  return (
+    <div className="amount">
+      {isBasket ? (
+        <span className="amount-basket t-body-b">Until the basket is empty</span>
+      ) : (
+        <div className="stepper">
+          <IconButton label="Fewer shots" disabled={n <= MIN_AMOUNT} onClick={() => set(n - 1)}>
+            <Minus />
+          </IconButton>
+          <output className="t-stat-sm stepper-value" aria-label="Number of shots">
+            {n}
+          </output>
+          <IconButton label="More shots" disabled={n >= MAX_AMOUNT} onClick={() => set(n + 1)}>
+            <Plus />
+          </IconButton>
+        </div>
+      )}
+      <label className="amount-toggle">
+        <span className="t-label-sm">Basket</span>
+        <Toggle
+          label="Basket"
+          checked={isBasket}
+          onChange={(on) => (on ? onChange({ kind: 'basket' }) : set(lastCount))}
+        />
+      </label>
+    </div>
+  );
+}
