@@ -1,4 +1,4 @@
-const CACHE = 'see-training-v4';
+const CACHE = 'see-training-v5';
 const SHELL = [
   '/',
   '/manifest.webmanifest',

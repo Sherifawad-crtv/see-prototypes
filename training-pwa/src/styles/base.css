@@ -603,15 +603,12 @@ button.chip::after { content: ''; position: absolute; inset: -4px 0; }
 }
 .hero-image {
   position: absolute;
-  top: calc(var(--s-12) * -1);
-  right: calc(var(--s-4) * -1);
-  width: 62%;
+  top: calc(var(--s-8) * -1);
+  right: calc(var(--s-6) * -1);
+  width: 64%;
   pointer-events: none;
-  mask-image: linear-gradient(to right, transparent, black 26%), linear-gradient(to bottom, transparent, black 10%);
-  mask-composite: intersect;
-  -webkit-mask-composite: source-in;
 }
-.hero-title { position: relative; z-index: 1; max-width: 62%; margin-bottom: auto; text-transform: uppercase; }
+.hero-title { position: relative; z-index: 1; max-width: 54%; margin-bottom: auto; text-transform: uppercase; }
 .hero-banner .btn { position: relative; z-index: 1; }
 .history-head { padding: var(--s-8) var(--s-8) 0; }
 .history-card { overflow: hidden; border-radius: var(--r-3xl); background: var(--bg); box-shadow: var(--shadow-card); }
