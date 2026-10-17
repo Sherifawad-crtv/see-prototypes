@@ -39,7 +39,7 @@ export function Gauge({ value, tone, label, display }: GaugeProps) {
 interface TileProps {
   label: string;
   value: ReactNode;
-  icon: IconName;
+  icon?: IconName;
 }
 
 export function Tile({ label, value, icon }: TileProps) {
@@ -47,7 +47,7 @@ export function Tile({ label, value, icon }: TileProps) {
     <div className="tile">
       <span className="t-body-sm tile-label">{label}</span>
       <span className="t-stat-md">{value}</span>
-      <Icon name={icon} size={92} className="tile-icon" />
+      {icon && <Icon name={icon} size={92} className="tile-icon" />}
     </div>
   );
 }

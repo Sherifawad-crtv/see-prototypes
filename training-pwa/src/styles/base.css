@@ -356,6 +356,8 @@ button.chip::after { content: ''; position: absolute; inset: -4px 0; }
   box-shadow: var(--shadow-card);
   text-align: left;
 }
+.tiles-compact .tile { min-height: 0; padding: var(--s-16) var(--s-20); }
+.tiles-compact .tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .tile-icon { position: absolute; right: -14px; top: 50%; transform: translateY(-30%); fill: url(#grad-orange); pointer-events: none; }
 .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-12); }
 .shot-grid { display: grid; grid-template-columns: 1fr; gap: var(--s-12); }

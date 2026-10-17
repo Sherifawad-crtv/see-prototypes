@@ -1,7 +1,7 @@
 import { activity, summarise, totals } from '../domain/stats.ts';
 import type { Session } from '../domain/types.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
-import { ColorBlock, Panel } from '../ui/blocks.tsx';
+import { ColorBlock, Panel, Tile } from '../ui/blocks.tsx';
 import { Button } from '../ui/controls.tsx';
 import { Court, type CourtDot, type CourtZone } from '../ui/Court.tsx';
 import { formatDate, formatDurationClock } from '../ui/format.ts';
@@ -13,6 +13,9 @@ function ResultsBody({ session }: { session: Session }) {
   const summary = summarise(session);
   const freeOnly = sums.targeted === 0;
   const effort = activity(session);
+  const shotTypes = new Set(session.shots.map((shot) => shot.shotId)).size;
+  const outOfBounds = session.shots.filter((shot) => !shot.inBounds).length;
+  const mixed = sums.free > 0 && sums.targeted > 0;
   const headline = sums.free > 0 && sums.targeted > 0 ? 'Mixed session' : sums.targeted > 0 ? 'Targeted session' : 'Free session';
 
   const dots: CourtDot[] = session.shots.map((shot) => ({
@@ -86,6 +89,14 @@ function ResultsBody({ session }: { session: Session }) {
               </div>
             )}
           </Panel>
+
+          <div className="tiles tiles-compact">
+            <Tile label="Total shots" value={sums.total} />
+            <Tile label="Shot types" value={shotTypes} />
+            {mixed && <Tile label="Free shots" value={sums.free} />}
+            {mixed && <Tile label="Targeted shots" value={sums.targeted} />}
+            <Tile label="Out of bounds" value={outOfBounds} />
+          </div>
         </>
       )}
     </>
