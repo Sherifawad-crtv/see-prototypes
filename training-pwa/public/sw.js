@@ -1,4 +1,4 @@
-const CACHE = 'see-training-v1';
+const CACHE = 'see-training-v2';
 const SHELL = [
   '/',
   '/manifest.webmanifest',
@@ -8,6 +8,7 @@ const SHELL = [
   '/icon-maskable-512.png',
   '/fonts/inter-latin-wght-normal.woff2',
   '/fonts/inter-latin-wght-italic.woff2',
+  '/fonts/obviously-bold-italic.woff2',
 ];
 
 async function precache() {
