@@ -54,7 +54,7 @@
 
   /* Semantic */
   --bg: var(--neutral-0);
-  --canvas: var(--neutral-200);
+  --canvas: #E6E7E8;
   --surface: var(--neutral-100);
   --border: var(--neutral-200);
   --text: var(--neutral-900);
