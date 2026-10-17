@@ -34,3 +34,4 @@
 .t-title-light { font: 300 italic 32px/38px var(--font-body); }
 .t-block-value { font: 700 normal 44px/1 var(--font-display); }
 .t-block-value-sm { font: 700 normal 34px/1 var(--font-display); }
+.t-block-value-lg { font: 700 normal 56px/1 var(--font-display); }

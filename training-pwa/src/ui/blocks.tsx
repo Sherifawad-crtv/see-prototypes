@@ -57,19 +57,22 @@ interface ColorBlockProps {
   label: string;
   value: ReactNode;
   unit?: string;
-  shape: ShapeKind;
+  shape?: ShapeKind;
+  icon?: IconName;
   wide?: boolean;
 }
 
-export function ColorBlock({ tone, label, value, unit, shape, wide = false }: ColorBlockProps) {
+export function ColorBlock({ tone, label, value, unit, shape, icon, wide = false }: ColorBlockProps) {
   const long = String(value).length > 4;
+  const valueClass = wide ? 't-block-value-lg' : long ? 't-block-value-sm' : 't-block-value';
   return (
     <div className={`block block-${tone}${wide ? ' block-wide' : ''}`}>
-      <Shape kind={shape} />
+      {shape && <Shape kind={shape} />}
+      {icon && <Icon name={icon} size={190} className="block-icon" />}
       <p className="t-block-label block-label">{label}</p>
       <hr className="block-rule" />
       <p className="block-value">
-        <span className={long ? 't-block-value-sm' : 't-block-value'}>{value}</span>
+        <span className={valueClass}>{value}</span>
         {unit && <span className="t-block-label block-unit">{unit}</span>}
       </p>
     </div>

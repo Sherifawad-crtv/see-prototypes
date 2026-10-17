@@ -389,6 +389,8 @@ button.chip::after { content: ''; position: absolute; inset: -4px 0; }
 .shape-court .shape-line { fill: none; stroke: var(--overlay-line); stroke-width: 2px; }
 .blocks { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-12); }
 .blocks .block { aspect-ratio: 192 / 226; min-height: 0; }
+.blocks .block-wide { aspect-ratio: auto; min-height: 196px; }
+.block-icon { position: absolute; z-index: -1; right: calc(var(--s-40) * -1); bottom: calc(var(--s-24) * -1); fill: url(#grad-orange); pointer-events: none; }
 
 .gauges { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-12); justify-items: center; }
 .gauge { position: relative; width: min(100%, 172px); aspect-ratio: 1; }

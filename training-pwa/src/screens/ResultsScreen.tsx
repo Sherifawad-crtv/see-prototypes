@@ -49,13 +49,13 @@ function ResultsBody({ session }: { session: Session }) {
       ) : (
         <>
           <div className="blocks">
-            <ColorBlock tone="blue" label="TOTAL SHOTS" value={sums.total} shape="court" />
             <ColorBlock
-              tone="orange"
+              wide
+              tone="blue"
               label="DURATION"
               value={formatDurationClock(summary.durationSec)}
               unit="min"
-              shape="court"
+              icon="schedule"
             />
             {freeOnly && (
               <>
