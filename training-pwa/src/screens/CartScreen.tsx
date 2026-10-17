@@ -18,11 +18,6 @@ function DrillCard({ item, index, cart }: { item: CartItem; index: number; cart:
 
   return (
     <li className={`drill drill-${item.status}`}>
-      <div className="rail">
-        <span className="rail-num t-stat-sm">
-          {item.status === 'done' ? <Icon name="check" size={22} /> : index + 1}
-        </span>
-      </div>
       <div className="drill-card">
         <div className="drill-head">
           <div className="drill-title">

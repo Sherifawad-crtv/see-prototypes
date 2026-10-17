@@ -417,13 +417,6 @@ button.chip::after { content: ''; position: absolute; inset: -4px 0; }
 
 /* Cart */
 .timeline { display: flex; flex-direction: column; gap: var(--s-12); }
-.drill { display: grid; grid-template-columns: 40px 1fr; gap: var(--s-8); }
-.rail { position: relative; display: flex; justify-content: center; }
-.rail::after { content: ''; position: absolute; top: 46px; bottom: calc(var(--s-12) * -1); width: 3px; border-radius: var(--r-full); background: var(--neutral-300); }
-.drill:last-child .rail::after { display: none; }
-.rail-num { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: var(--r-full); background: var(--blue-600); color: var(--neutral-0); }
-.drill-running .rail-num { background: var(--accent); animation: pulse 1.6s ease-in-out infinite; }
-.drill-done .rail-num { background: var(--success); }
 .drill-card { display: flex; flex-direction: column; gap: var(--s-12); min-width: 0; padding: var(--s-16); border-radius: var(--r-2xl); background: var(--bg); box-shadow: var(--shadow-card); }
 .drill-done .drill-card { background: var(--neutral-100); box-shadow: none; }
 .drill-head { display: flex; align-items: center; gap: var(--s-12); }
