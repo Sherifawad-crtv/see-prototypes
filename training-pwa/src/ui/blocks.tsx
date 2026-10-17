@@ -36,42 +36,6 @@ export function Gauge({ value, tone, label, display }: GaugeProps) {
   );
 }
 
-interface DonutProps {
-  a: number;
-  b: number;
-  aLabel: string;
-  bLabel: string;
-}
-
-const DONUT_R = 44;
-const DONUT_C = 2 * Math.PI * DONUT_R;
-
-export function Donut({ a, b, aLabel, bLabel }: DonutProps) {
-  const total = a + b;
-  const share = total === 0 ? 0 : a / total;
-  const pctA = Math.round(share * 100);
-  return (
-    <div className="donut" role="img" aria-label={`${aLabel} ${pctA}%, ${bLabel} ${100 - pctA}%`}>
-      <svg viewBox="0 0 120 120" aria-hidden="true" focusable="false">
-        <circle cx="60" cy="60" r={DONUT_R} className="donut-b" />
-        <circle
-          cx="60"
-          cy="60"
-          r={DONUT_R}
-          className="donut-a"
-          strokeDasharray={`${DONUT_C * share} ${DONUT_C}`}
-          transform="rotate(-90 60 60)"
-        />
-      </svg>
-      <div className="donut-core">
-        <span className="t-overline-sm donut-a-text">{aLabel}</span>
-        <span className="t-stat-sm">{pctA}%</span>
-        <span className="t-overline-sm donut-b-text">{bLabel}</span>
-      </div>
-    </div>
-  );
-}
-
 interface TileProps {
   label: string;
   value: ReactNode;

@@ -112,7 +112,6 @@ export function LiveScreen() {
             mode="live"
             view="half"
             dots={dots}
-            targeted={targeted}
             zones={targeted && current?.targetZone ? [{ id: current.targetZone, emphasis: 'target' }] : []}
           />
           <p className="court-caption t-caption">

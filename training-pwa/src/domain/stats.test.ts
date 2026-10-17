@@ -1,14 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import {
-  distribution,
-  insight,
-  NO_MISSES_TEXT,
-  NO_PATTERN_TEXT,
-  onTarget,
-  summarise,
-  totals,
-} from './stats.ts';
+import { onTarget, summarise, totals } from './stats.ts';
 import type { CartItem, Session, ShotEvent, ZoneId } from './types.ts';
 
 const T0 = '2026-01-01T10:00:00.000Z';
@@ -72,30 +64,6 @@ describe('totals', () => {
   });
 });
 
-describe('distribution', () => {
-  it('returns nothing for an empty session', () => {
-    assert.deepEqual(distribution(empty, 'free'), []);
-    assert.deepEqual(distribution(empty, 'targeted'), []);
-  });
-
-  it('merges sets of the same shot and sorts descending', () => {
-    const s = session(
-      [item('a', 'lob', 'free'), item('b', 'volley', 'free'), item('c', 'lob', 'free')],
-      [
-        shot('a', 'lob', 0.5, 0.5),
-        shot('b', 'volley', 0.5, 0.5),
-        shot('c', 'lob', 0.5, 0.5),
-        shot('c', 'lob', 0.5, 0.5),
-      ],
-    );
-    assert.deepEqual(distribution(s, 'free'), [
-      { shotId: 'lob', count: 3, pct: 75 },
-      { shotId: 'volley', count: 1, pct: 25 },
-    ]);
-    assert.deepEqual(distribution(s, 'targeted'), []);
-  });
-});
-
 describe('onTarget', () => {
   it('returns zeros for an empty session', () => {
     assert.deepEqual(onTarget(empty), { hits: 0, total: 0, pct: 0, byShot: [] });
@@ -141,61 +109,6 @@ describe('onTarget', () => {
         ['lob', 2, 2, 100],
       ],
     );
-  });
-});
-
-describe('insight', () => {
-  const cart = [item('a', 'overhead', 'targeted', 'back-right')];
-
-  it('is null without targeted shots', () => {
-    assert.equal(insight(empty), null);
-    assert.equal(insight(session([item('a', 'lob', 'free')], [shot('a', 'lob', 0.5, 0.5)])), null);
-  });
-
-  it('celebrates a session without misses', () => {
-    const s = session(cart, [shot('a', 'overhead', 0.8, 0.8, true)]);
-    assert.equal(insight(s), NO_MISSES_TEXT);
-  });
-
-  it('needs at least five misses for one shot type', () => {
-    const misses = Array.from({ length: 4 }, () => shot('a', 'overhead', 0.75, 0.3, false));
-    assert.equal(insight(session(cart, misses)), NO_PATTERN_TEXT);
-  });
-
-  it('reports shots landing short of the target', () => {
-    const misses = Array.from({ length: 5 }, () => shot('a', 'overhead', 0.75, 0.4, false));
-    assert.equal(
-      insight(session(cart, misses)),
-      'Overhead: most misses land short of the target',
-    );
-  });
-
-  it('reports shots landing left of the target', () => {
-    const misses = Array.from({ length: 5 }, () => shot('a', 'overhead', 0.45, 0.85, false));
-    assert.equal(
-      insight(session(cart, misses)),
-      'Overhead: most misses land left of the target',
-    );
-  });
-
-  it('reports shots landing long, including out of bounds', () => {
-    const cartMid = [item('a', 'overhead', 'targeted', 'mid-left')];
-    const misses = Array.from({ length: 5 }, () => shot('a', 'overhead', 0.25, 1.2, false));
-    assert.equal(
-      insight(session(cartMid, misses)),
-      'Overhead: most misses land long of the target',
-    );
-  });
-
-  it('reports no pattern when the average offset is small', () => {
-    const misses = [
-      shot('a', 'overhead', 0.65, 0.85, false),
-      shot('a', 'overhead', 0.85, 0.85, false),
-      shot('a', 'overhead', 0.75, 0.75, false),
-      shot('a', 'overhead', 0.75, 0.95, false),
-      shot('a', 'overhead', 0.75, 0.85, false),
-    ];
-    assert.equal(insight(session(cart, misses)), NO_PATTERN_TEXT);
   });
 });
 

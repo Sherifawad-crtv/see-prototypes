@@ -27,7 +27,6 @@ interface CourtProps {
   zones?: CourtZone[];
   selectedZone?: ZoneId | null;
   onSelectZone?: (zone: ZoneId) => void;
-  targeted?: boolean;
 }
 
 const PAD = 2;
@@ -59,9 +58,9 @@ function zoneRect(id: ZoneId) {
   };
 }
 
-function dotState(dot: CourtDot, targeted: boolean): 'out' | 'hit' | 'miss' | 'free' {
+function dotState(dot: CourtDot): 'out' | 'hit' | 'miss' | 'free' {
   if (!dot.inBounds) return 'out';
-  if (!targeted) return 'free';
+  if (dot.hit === undefined) return 'free';
   return dot.hit ? 'hit' : 'miss';
 }
 
@@ -72,7 +71,6 @@ export function Court({
   zones = [],
   selectedZone = null,
   onSelectZone,
-  targeted = false,
 }: CourtProps) {
   const box = viewBoxOf(view);
   const [activeDot, setActiveDot] = useState<string | null>(null);
@@ -87,8 +85,8 @@ export function Court({
   };
 
   const tooltipText = (dot: CourtDot) => {
-    if (!targeted) return shotLabel(dot.shotId);
-    const state = dotState(dot, true);
+    if (dot.hit === undefined) return shotLabel(dot.shotId);
+    const state = dotState(dot);
     const result = state === 'hit' ? 'Hit' : state === 'miss' ? 'Miss' : 'Out';
     return `${shotLabel(dot.shotId)} · ${result}`;
   };
@@ -199,7 +197,7 @@ export function Court({
       >
         {dots.map((dot) => {
           const { x, y } = dotPosition(dot);
-          const state = dotState(dot, targeted);
+          const state = dotState(dot);
           return (
             <g
               key={dot.id}
