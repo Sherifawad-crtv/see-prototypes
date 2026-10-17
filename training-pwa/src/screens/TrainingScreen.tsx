@@ -71,7 +71,7 @@ export function TrainingScreen() {
 
   return (
     <main className="screen">
-      <PageHeader title="Training" onBack={actions.back} />
+      <PageHeader title="Training" />
       <div className="screen-body">
         {empty ? (
           <div className="empty-state">

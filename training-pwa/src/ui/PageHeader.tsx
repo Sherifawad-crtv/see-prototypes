@@ -5,7 +5,7 @@ import { Icon } from './icons.tsx';
 interface PageHeaderProps {
   title: string;
   subtitle?: string;
-  onBack: () => void;
+  onBack?: () => void;
   trailing?: ReactNode;
   steps?: { current: number; labels: string[] };
 }
@@ -14,9 +14,11 @@ export function PageHeader({ title, subtitle, onBack, trailing, steps }: PageHea
   return (
     <header className="page-header">
       <div className="page-header-row">
-        <IconButton variant="secondary" label="Back" onClick={onBack}>
-          <Icon name="chevron_left" size={28} />
-        </IconButton>
+        {onBack && (
+          <IconButton variant="secondary" label="Back" onClick={onBack}>
+            <Icon name="chevron_left" size={28} />
+          </IconButton>
+        )}
         <div className="page-header-title">
           <h1 className="t-h3">{title}</h1>
           {subtitle && <p className="t-body-sm text-2">{subtitle}</p>}

@@ -67,9 +67,6 @@ function createActions(
   };
 
   return {
-    openTraining() {
-      nav.push('training');
-    },
     trainAgain() {
       dispatch({ type: 'session/new', id: uid(), at: now() });
       nav.replace('add');

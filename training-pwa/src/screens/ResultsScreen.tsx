@@ -1,22 +1,23 @@
-import { activity, summarise, totals } from '../domain/stats.ts';
+import { activity, onTarget, summarise, totals } from '../domain/stats.ts';
 import type { Session } from '../domain/types.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
-import { ColorBlock, Panel, Tile } from '../ui/blocks.tsx';
+import { ColorBlock, Gauge, Panel, Tile } from '../ui/blocks.tsx';
 import { Button } from '../ui/controls.tsx';
 import { Court, type CourtDot, type CourtZone } from '../ui/Court.tsx';
-import { formatDate, formatDurationClock } from '../ui/format.ts';
+import { formatDurationClock } from '../ui/format.ts';
 import { Icon } from '../ui/icons.tsx';
 import { PageHeader } from '../ui/PageHeader.tsx';
 
 function ResultsBody({ session }: { session: Session }) {
   const sums = totals(session);
   const summary = summarise(session);
-  const freeOnly = sums.targeted === 0;
+  const scored = sums.targeted > 0;
+  const scoredStats = onTarget(session);
+  const hitPct = scoredStats.pct;
   const effort = activity(session);
   const shotTypes = new Set(session.shots.map((shot) => shot.shotId)).size;
   const outOfBounds = session.shots.filter((shot) => !shot.inBounds).length;
   const mixed = sums.free > 0 && sums.targeted > 0;
-  const headline = sums.free > 0 && sums.targeted > 0 ? 'Mixed session' : sums.targeted > 0 ? 'Targeted session' : 'Free session';
 
   const dots: CourtDot[] = session.shots.map((shot) => ({
     id: shot.id,
@@ -36,11 +37,6 @@ function ResultsBody({ session }: { session: Session }) {
 
   return (
     <>
-      <section className="wash-card result-hero">
-        <p className="t-body-sm text-2">{formatDate(session.startedAt)}</p>
-        <h2 className="t-display-md">{sums.total === 0 ? 'Session recap' : headline}</h2>
-      </section>
-
       {sums.total === 0 ? (
         <div className="empty-hero">
           <div className="empty-art" aria-hidden="true">
@@ -51,17 +47,26 @@ function ResultsBody({ session }: { session: Session }) {
         </div>
       ) : (
         <>
-          <div className="blocks">
-            <ColorBlock
-              wide
-              tone="blue"
-              label="DURATION"
-              value={formatDurationClock(summary.durationSec)}
-              unit="min"
-              icon="schedule"
-            />
-            {freeOnly && (
-              <>
+          {scored ? (
+              <div className="gauges">
+                <Gauge tone="blue" label="Hits" value={hitPct} display={scoredStats.hits} />
+                <Gauge
+                  tone="orange"
+                  label="Misses"
+                  value={100 - hitPct}
+                  display={scoredStats.total - scoredStats.hits}
+                />
+              </div>
+            ) : (
+              <div className="blocks">
+                <ColorBlock
+                  wide
+                  tone="blue"
+                  label="DURATION"
+                  value={formatDurationClock(summary.durationSec)}
+                  unit="min"
+                  icon="schedule"
+                />
                 <ColorBlock
                   tone="blue"
                   label="DISTANCE COVERED"
@@ -70,9 +75,8 @@ function ResultsBody({ session }: { session: Session }) {
                   shape="swoosh"
                 />
                 <ColorBlock tone="orange" label="TOTAL CALORIES" value={effort.calories} unit="KCAL" shape="flame" />
-              </>
+              </div>
             )}
-          </div>
 
           <Panel icon="my_location" title="Shot Placement" subtitle="Where your shots landed on court">
             <div className="court-stage">

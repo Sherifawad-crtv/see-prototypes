@@ -14,7 +14,7 @@ export const MAX_AMOUNT = 50;
 export const DEFAULT_COUNT = 10;
 export const DRAFT_KEY = 'draft';
 
-export type Screen = 'home' | 'training' | 'cart' | 'add' | 'target' | 'live' | 'results';
+export type Screen = 'training' | 'cart' | 'add' | 'target' | 'live' | 'results';
 export type Sheet = null | 'amount' | 'endConfirm' | 'discard' | 'resume' | 'saved';
 
 export interface Draft {
@@ -78,7 +78,7 @@ export const initialState: State = {
   session: null,
   viewing: null,
   resumeCandidate: null,
-  stack: ['home'],
+  stack: ['training'],
   sheet: null,
   draft: {
     mode: 'free',
