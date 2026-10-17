@@ -113,33 +113,6 @@ export function ColorBlock({ tone, label, value, unit, pct, shape, wide = false 
   );
 }
 
-interface VersusBarProps {
-  label: string;
-  left: number;
-  right: number;
-}
-
-export function VersusBar({ label, left, right }: VersusBarProps) {
-  const max = Math.max(left, right, 1);
-  return (
-    <div className="versus">
-      <div className="versus-head">
-        <span className="t-stat-sm versus-left">{left}</span>
-        <span className="t-label">{label}</span>
-        <span className="t-stat-sm versus-right">{right}</span>
-      </div>
-      <div className="versus-bars" aria-hidden="true">
-        <div className="versus-half versus-half-left">
-          <span className="versus-fill versus-fill-left" style={{ width: `${(left / max) * 100}%` }} />
-        </div>
-        <div className="versus-half">
-          <span className="versus-fill versus-fill-right" style={{ width: `${(right / max) * 100}%` }} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 interface OptionCardProps {
   icon: IconName;
   title: string;

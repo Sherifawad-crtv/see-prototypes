@@ -15,8 +15,10 @@ export function formatDurationClock(totalSec: number): string {
 
 export function formatDuration(totalSec: number): string {
   if (totalSec < 60) return `${totalSec} s`;
-  const minutes = Math.floor(totalSec / 60);
+  const hours = Math.floor(totalSec / 3600);
+  const minutes = Math.floor((totalSec % 3600) / 60);
   const seconds = totalSec % 60;
+  if (hours > 0) return minutes === 0 ? `${hours} h` : `${hours} h ${minutes} min`;
   return seconds === 0 ? `${minutes} min` : `${minutes} min ${seconds} s`;
 }
 

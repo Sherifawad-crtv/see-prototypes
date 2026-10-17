@@ -29,19 +29,13 @@ export function App() {
   const { state, actions } = useTraining();
   const top = state.stack.at(-1) ?? 'home';
   const Current = SCREENS[top];
-  const onRoot = state.stack.length === 1 && (top === 'home' || top === 'training');
+  const onHome = state.stack.length === 1 && top === 'home';
 
   return (
     <div className="app">
       <IconGradients />
       {state.ready && <Current key={top} />}
-      {onRoot && (
-        <Nav
-          active={top === 'training' ? 'training' : 'home'}
-          onChange={actions.switchTab}
-          onQuickStart={actions.startTraining}
-        />
-      )}
+      {onHome && <Nav onTraining={actions.openTraining} onQuickStart={actions.startTraining} />}
       <Sheets />
       <div className="toast-host" aria-live="polite">
         {state.toast && <Tooltip key={state.toast.id}>{state.toast.text}</Tooltip>}

@@ -48,7 +48,6 @@ export type Action =
   | { type: 'nav/push'; screen: Screen }
   | { type: 'nav/replace'; screen: Screen }
   | { type: 'nav/sync'; depth: number }
-  | { type: 'nav/tab'; tab: 'home' | 'training' }
   | { type: 'sheet'; sheet: Sheet }
   | { type: 'toast'; text: string }
   | { type: 'toast/clear'; id: number }
@@ -166,8 +165,6 @@ export function reducer(state: State, action: Action): State {
       return { ...state, toast: null, stack: [...state.stack, action.screen] };
     case 'nav/replace':
       return { ...state, toast: null, stack: [...state.stack.slice(0, -1), action.screen] };
-    case 'nav/tab':
-      return state.stack.length === 1 ? { ...state, stack: [action.tab] } : state;
     case 'nav/sync':
       return action.depth + 1 >= state.stack.length
         ? state

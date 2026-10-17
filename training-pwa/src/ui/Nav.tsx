@@ -1,35 +1,22 @@
-import { Icon, type IconName } from './icons.tsx';
-
-export type Tab = 'home' | 'training';
-
-const ITEMS: { tab: Tab; label: string; icon: IconName }[] = [
-  { tab: 'home', label: 'Home', icon: 'home' },
-  { tab: 'training', label: 'Training', icon: 'sports_tennis' },
-];
+import { Icon } from './icons.tsx';
 
 interface NavProps {
-  active: Tab;
-  onChange: (tab: Tab) => void;
+  onTraining: () => void;
   onQuickStart: () => void;
 }
 
-export function Nav({ active, onChange, onQuickStart }: NavProps) {
+export function Nav({ onTraining, onQuickStart }: NavProps) {
   return (
     <nav className="nav" aria-label="Main">
       <div className="nav-pill">
-        {ITEMS.map((item) => (
-          <button
-            key={item.tab}
-            type="button"
-            aria-label={item.label}
-            aria-current={item.tab === active ? 'page' : undefined}
-            className={`nav-item${item.tab === active ? ' nav-item-on' : ''}`}
-            onClick={() => onChange(item.tab)}
-          >
-            <Icon name={item.icon} size={30} />
-            <span className="t-caption-sm nav-label">{item.label}</span>
-          </button>
-        ))}
+        <button type="button" aria-label="Home" aria-current="page" className="nav-item nav-item-on">
+          <Icon name="home" size={30} />
+          <span className="t-caption-sm nav-label">Home</span>
+        </button>
+        <button type="button" aria-label="Training" className="nav-item" onClick={onTraining}>
+          <Icon name="sports_tennis" size={30} />
+          <span className="t-caption-sm nav-label">Training</span>
+        </button>
       </div>
       <button type="button" aria-label="Quick start" className="nav-action" onClick={onQuickStart}>
         <Icon name="play_arrow" size={34} />

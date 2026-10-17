@@ -31,3 +31,4 @@
 .btn-stacked .btn-label { font: 600 15px/20px var(--font-body); }
 .btn-sm .btn-label { font: 600 13px/18px var(--font-body); }
 .t-block-label { font: 700 italic 13px/18px var(--font-display); text-transform: uppercase; }
+.t-title-light { font: 300 italic 32px/38px var(--font-body); }

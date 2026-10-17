@@ -39,7 +39,6 @@ function createActions(
   dispatch: (action: Parameters<typeof reducer>[1]) => void,
   nav: {
     push: (screen: Screen) => void;
-    tab: (tab: 'home' | 'training') => void;
     replace: (screen: Screen) => void;
     popTo: (screen: Screen) => void;
     back: () => void;
@@ -68,7 +67,9 @@ function createActions(
   };
 
   return {
-    switchTab: nav.tab,
+    openTraining() {
+      nav.push('training');
+    },
     trainAgain() {
       dispatch({ type: 'session/new', id: uid(), at: now() });
       nav.replace('cart');
@@ -203,9 +204,6 @@ function createActions(
       nav.push('results');
       void persistEnded(ended);
     },
-    loadSession(id: string): Promise<Session | null> {
-      return repository.get(id);
-    },
     async openHistory(id: string) {
       const session = await repository.get(id);
       if (!session) return;
@@ -239,10 +237,6 @@ export function TrainingProvider({ children }: { children: ReactNode }) {
         depth.current += 1;
         history.pushState({ i: depth.current }, '');
         dispatch({ type: 'nav/push', screen });
-      },
-      tab(tab: 'home' | 'training') {
-        history.replaceState({ i: 0 }, '');
-        dispatch({ type: 'nav/tab', tab });
       },
       replace(screen: Screen) {
         history.replaceState({ i: depth.current }, '');
