@@ -2,10 +2,10 @@ import { SHOTS } from '../domain/catalog.ts';
 import type { Mode } from '../domain/types.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
 import { MAX_DRILLS } from '../store/reducer.ts';
-import { Button, Chip, Tabs } from '../ui/controls.tsx';
-import { Bolt, ChevronRight, Target } from '../ui/icons.tsx';
+import { Button, Tabs } from '../ui/controls.tsx';
 import { plural } from '../ui/format.ts';
-import { NavBar } from '../ui/NavBar.tsx';
+import { Icon, type IconName } from '../ui/icons.tsx';
+import { PageHeader } from '../ui/PageHeader.tsx';
 
 const MODES: { value: Mode; label: string }[] = [
   { value: 'free', label: 'Free' },
@@ -17,6 +17,14 @@ export const STEPS: Record<Mode, string[]> = {
   targeted: ['Shot', 'Target', 'Amount'],
 };
 
+const SHOT_ICONS: Record<string, IconName> = {
+  serve: 'sports_tennis',
+  groundstroke: 'swap_horiz',
+  volley: 'bolt',
+  overhead: 'keyboard_double_arrow_up',
+  lob: 'rocket_launch',
+};
+
 export function AddShotScreen() {
   const { state, actions } = useTraining();
   const { draft, sheet, session } = state;
@@ -25,7 +33,7 @@ export function AddShotScreen() {
 
   return (
     <main className="screen">
-      <NavBar
+      <PageHeader
         title="Add a Shot"
         subtitle="Add as many as you like, then view your cart"
         onBack={actions.viewCart}
@@ -34,7 +42,9 @@ export function AddShotScreen() {
       <div className="screen-body">
         <Tabs label="Training mode" value={draft.mode} options={MODES} onChange={actions.setMode} />
         <div className="mode-note">
-          <span className="mode-note-icon">{draft.mode === 'free' ? <Bolt /> : <Target />}</span>
+          <span className="mode-note-icon">
+            <Icon name={draft.mode === 'free' ? 'bolt' : 'my_location'} size={22} />
+          </span>
           <p className="t-body-sm">
             {draft.mode === 'free'
               ? 'Hit anywhere. The camera tracks where every shot lands.'
@@ -44,28 +54,31 @@ export function AddShotScreen() {
         <div className="shot-grid">
           {SHOTS.map((shot) => {
             const inCart = cart.filter((item) => item.shotId === shot.id).length;
+            const selected = sheet === 'amount' && draft.shotId === shot.id;
             return (
-              <Chip
+              <button
                 key={shot.id}
-                block
-                selected={sheet === 'amount' && draft.shotId === shot.id}
+                type="button"
+                aria-pressed={selected}
+                className={`shot-tile${selected ? ' shot-tile-on' : ''}`}
                 onClick={() => actions.pickShot(shot.id)}
               >
-                {shot.label}
-                {shot.alias && <span className="chip-alias t-caption">{shot.alias}</span>}
+                <span className="t-stat-sm shot-tile-name">{shot.label}</span>
+                <span className="t-body-sm text-2 shot-tile-caption">{shot.alias ?? 'Shot'}</span>
                 {inCart > 0 && <span className="chip-count t-caption-b">{inCart}</span>}
-              </Chip>
+                <Icon name={SHOT_ICONS[shot.id] ?? 'sports_tennis'} size={72} className="tile-icon" />
+              </button>
             );
           })}
         </div>
         {full && <p className="t-body-sm text-2 center">Cart is full</p>}
       </div>
-      <footer className="bar-bottom bar-dark row-between">
-        <div>
-          <p className="t-overline">In cart</p>
+      <footer className="float-bar">
+        <div className="float-info">
+          <p className="t-overline text-2">In cart</p>
           <p className="t-h4">{plural(cart.length, 'drill')}</p>
         </div>
-        <Button variant="accent" icon={<ChevronRight />} onClick={actions.viewCart}>
+        <Button icon={<Icon name="arrow_forward" size={24} />} onClick={actions.viewCart}>
           View cart
         </Button>
       </footer>

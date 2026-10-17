@@ -1,7 +1,7 @@
 import type { Amount } from '../domain/types.ts';
 import { MAX_AMOUNT, MIN_AMOUNT } from '../store/reducer.ts';
 import { IconButton, Toggle } from './controls.tsx';
-import { Minus, Plus } from './icons.tsx';
+import { Icon } from './icons.tsx';
 
 interface AmountControlProps {
   amount: Amount;
@@ -23,13 +23,13 @@ export function AmountControl({ amount, lastCount, onChange, large = false }: Am
       ) : (
         <div className="stepper">
           <IconButton label="Fewer shots" disabled={n <= MIN_AMOUNT} onClick={() => set(n - 1)}>
-            <Minus />
+            <Icon name="remove" size={26} />
           </IconButton>
           <output className={`${large ? 't-stat-lg' : 't-stat-sm'} stepper-value`} aria-label="Number of shots">
             {n}
           </output>
           <IconButton label="More shots" disabled={n >= MAX_AMOUNT} onClick={() => set(n + 1)}>
-            <Plus />
+            <Icon name="add" size={26} />
           </IconButton>
         </div>
       )}

@@ -3,7 +3,7 @@ import { getZone } from '../domain/zones.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
 import { Button } from '../ui/controls.tsx';
 import { Court } from '../ui/Court.tsx';
-import { NavBar } from '../ui/NavBar.tsx';
+import { PageHeader } from '../ui/PageHeader.tsx';
 import { STEPS } from './AddShotScreen.tsx';
 
 export function TargetScreen() {
@@ -13,7 +13,7 @@ export function TargetScreen() {
 
   return (
     <main className="screen">
-      <NavBar
+      <PageHeader
         title={`Where should your ${shotLabel(draft.shotId)} land?`}
         subtitle="Tap one zone"
         onBack={actions.back}
@@ -33,7 +33,7 @@ export function TargetScreen() {
         </p>
         <p className="t-caption text-2 center">The net is at the bottom of the court.</p>
       </div>
-      <footer className="bar-bottom">
+      <footer className="float-bar">
         <Button full disabled={!draft.targetZone} onClick={actions.confirmTarget}>
           Continue
         </Button>

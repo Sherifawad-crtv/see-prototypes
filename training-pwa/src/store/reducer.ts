@@ -14,8 +14,8 @@ export const MAX_AMOUNT = 50;
 export const DEFAULT_COUNT = 10;
 export const DRAFT_KEY = 'draft';
 
-export type Screen = 'training' | 'cart' | 'add' | 'target' | 'live' | 'results';
-export type Sheet = null | 'amount' | 'endConfirm' | 'discard' | 'resume';
+export type Screen = 'home' | 'training' | 'cart' | 'add' | 'target' | 'live' | 'results';
+export type Sheet = null | 'amount' | 'endConfirm' | 'discard' | 'resume' | 'saved';
 
 export interface Draft {
   mode: Mode;
@@ -48,6 +48,7 @@ export type Action =
   | { type: 'nav/push'; screen: Screen }
   | { type: 'nav/replace'; screen: Screen }
   | { type: 'nav/sync'; depth: number }
+  | { type: 'nav/tab'; tab: 'home' | 'training' }
   | { type: 'sheet'; sheet: Sheet }
   | { type: 'toast'; text: string }
   | { type: 'toast/clear'; id: number }
@@ -78,7 +79,7 @@ export const initialState: State = {
   session: null,
   viewing: null,
   resumeCandidate: null,
-  stack: ['training'],
+  stack: ['home'],
   sheet: null,
   draft: {
     mode: 'free',
@@ -162,9 +163,11 @@ export function reducer(state: State, action: Action): State {
     case 'history':
       return { ...state, history: action.history };
     case 'nav/push':
-      return { ...state, stack: [...state.stack, action.screen] };
+      return { ...state, toast: null, stack: [...state.stack, action.screen] };
     case 'nav/replace':
-      return { ...state, stack: [...state.stack.slice(0, -1), action.screen] };
+      return { ...state, toast: null, stack: [...state.stack.slice(0, -1), action.screen] };
+    case 'nav/tab':
+      return state.stack.length === 1 ? { ...state, stack: [action.tab] } : state;
     case 'nav/sync':
       return action.depth + 1 >= state.stack.length
         ? state
@@ -340,7 +343,7 @@ export function reducer(state: State, action: Action): State {
         session: action.session,
         resumeCandidate: null,
         sheet: null,
-        stack: ['training'],
+        stack: state.stack.slice(0, 1),
       };
     case 'viewing':
       return { ...state, viewing: action.session };

@@ -6,8 +6,8 @@ import { canMove, DEFAULT_COUNT, MAX_DRILLS } from '../store/reducer.ts';
 import { AmountControl } from '../ui/AmountControl.tsx';
 import { Badge, Button, IconButton } from '../ui/controls.tsx';
 import { amountLabel, modeBadgeText, plural } from '../ui/format.ts';
-import { Check, ChevronDown, ChevronUp, Play, Plus, Repeat, Trash } from '../ui/icons.tsx';
-import { NavBar } from '../ui/NavBar.tsx';
+import { Icon } from '../ui/icons.tsx';
+import { PageHeader } from '../ui/PageHeader.tsx';
 import { ZoneThumb } from '../ui/ZoneThumb.tsx';
 
 function DrillCard({ item, index, cart }: { item: CartItem; index: number; cart: CartItem[] }) {
@@ -19,7 +19,7 @@ function DrillCard({ item, index, cart }: { item: CartItem; index: number; cart:
     <li className={`drill drill-${item.status}`}>
       <div className="rail">
         <span className="rail-num t-stat-sm">
-          {item.status === 'done' ? <Check /> : index + 1}
+          {item.status === 'done' ? <Icon name="check" size={22} /> : index + 1}
         </span>
       </div>
       <div className="drill-card">
@@ -63,7 +63,7 @@ function DrillCard({ item, index, cart }: { item: CartItem; index: number; cart:
                   disabled={!canMove(cart, index, -1)}
                   onClick={() => actions.moveItem(item.id, -1)}
                 >
-                  <ChevronUp />
+                  <Icon name="keyboard_arrow_up" size={28} />
                 </IconButton>
                 <IconButton
                   variant="ghost"
@@ -71,12 +71,12 @@ function DrillCard({ item, index, cart }: { item: CartItem; index: number; cart:
                   disabled={!canMove(cart, index, 1)}
                   onClick={() => actions.moveItem(item.id, 1)}
                 >
-                  <ChevronDown />
+                  <Icon name="keyboard_arrow_down" size={28} />
                 </IconButton>
               </div>
               <div className="drill-actions-group">
                 <IconButton variant="ghost" label={`Repeat ${name}`} onClick={() => actions.redoItem(item.id)}>
-                  <Repeat />
+                  <Icon name="replay" size={24} />
                 </IconButton>
                 <IconButton
                   variant="ghost"
@@ -84,7 +84,7 @@ function DrillCard({ item, index, cart }: { item: CartItem; index: number; cart:
                   label={`Delete ${name}`}
                   onClick={() => actions.deleteItem(item.id)}
                 >
-                  <Trash />
+                  <Icon name="delete" size={24} />
                 </IconButton>
               </div>
             </div>
@@ -106,14 +106,16 @@ export function CartScreen() {
 
   return (
     <main className="screen">
-      <NavBar title="Shot Cart" subtitle="Shots play from top to bottom" onBack={actions.cartBack} />
+      <PageHeader title="Shot Cart" subtitle="Shots play from top to bottom" onBack={actions.cartBack} />
       <div className="screen-body">
         {cart.length === 0 ? (
           <div className="empty-hero">
-            <div className="empty-art" aria-hidden="true" />
+            <div className="empty-art" aria-hidden="true">
+              <Icon name="sports_tennis" size={56} />
+            </div>
             <p className="t-display-sm">Add your first shot</p>
             <p className="t-body text-2">Pick a shot, choose how many, and stack up your drills.</p>
-            <Button icon={<Plus />} onClick={actions.openAdd}>
+            <Button icon={<Icon name="add" size={24} />} onClick={actions.openAdd}>
               Add shot
             </Button>
           </div>
@@ -125,21 +127,21 @@ export function CartScreen() {
               ))}
             </ol>
             <button type="button" className="add-shot t-h4" disabled={full} onClick={actions.openAdd}>
-              <Plus /> Add shot
+              <Icon name="add" size={26} /> Add shot
             </button>
             {full && <p className="t-body-sm text-2 center">Cart is full</p>}
           </>
         )}
       </div>
-      <footer className="bar-bottom bar-dark row-between">
-        <div>
-          <p className="t-overline">In cart</p>
+      <footer className="float-bar">
+        <div className="float-info">
+          <p className="t-overline text-2">In cart</p>
           <p className="t-h4">
             {plural(cart.length, 'drill')}
             {session.phase !== 'building' && upcoming > 0 && ` · ${upcoming} to go`}
           </p>
         </div>
-        <Button variant="accent" icon={<Play />} disabled={!canStart} onClick={actions.start}>
+        <Button icon={<Icon name="play_arrow" size={26} />} disabled={!canStart} onClick={actions.start}>
           Start
         </Button>
       </footer>

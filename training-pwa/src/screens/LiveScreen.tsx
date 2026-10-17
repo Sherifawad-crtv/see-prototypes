@@ -5,9 +5,8 @@ import { amountText, useTraining } from '../store/TrainingProvider.tsx';
 import { runningItem } from '../store/reducer.ts';
 import { Badge, Button, ProgressBar } from '../ui/controls.tsx';
 import { Court, type CourtDot } from '../ui/Court.tsx';
-import { Camera, Plus, Repeat, Stop } from '../ui/icons.tsx';
-
-const MAX_TICKS = 20;
+import { Icon } from '../ui/icons.tsx';
+import { Shape } from '../ui/shapes.tsx';
 
 function useWakeLock() {
   useEffect(() => {
@@ -38,23 +37,6 @@ function useWakeLock() {
   }, []);
 }
 
-function Ticks({ total, done }: { total: number; done: number }) {
-  return (
-    <div
-      className="ticks"
-      role="progressbar"
-      aria-label="Drill progress"
-      aria-valuemin={0}
-      aria-valuemax={total}
-      aria-valuenow={done}
-    >
-      {Array.from({ length: total }, (_, index) => (
-        <span key={index} className={`tick${index < done ? ' tick-on' : ''}`} />
-      ))}
-    </div>
-  );
-}
-
 export function LiveScreen() {
   const { state, actions } = useTraining();
   useWakeLock();
@@ -83,8 +65,8 @@ export function LiveScreen() {
   const repeatText = current ? `Repeat ${shotLabel(current.shotId)} ${amountText(current.amount)}` : '';
 
   return (
-    <main className="screen screen-live">
-      <div className="screen-body">
+    <main className="screen">
+      <div className="screen-body live-body">
         <div className="live-head">
           {idle ? (
             <Badge>Waiting for next drill</Badge>
@@ -96,11 +78,34 @@ export function LiveScreen() {
             </Badge>
           )}
           {current && (
-            <span className="t-label-sm live-position">
+            <span className="t-label-sm text-2">
               Drill {position} of {session.cart.length}
             </span>
           )}
         </div>
+
+        {current && (
+          <div className="block block-blue drilling">
+            <Shape kind="court" />
+            <p className="t-block-label block-label">{idle ? 'Cart complete' : 'Now drilling'}</p>
+            <hr className="block-rule" />
+            <div className="drilling-row">
+              <div className="stack-4">
+                <p className="t-display-md">{shotLabel(current.shotId)}</p>
+                {targeted && current.targetZone && (
+                  <p className="t-label-sm drilling-aim">Aiming for {getZone(current.targetZone).label}</p>
+                )}
+              </div>
+              <p className="live-count t-display-lg" aria-live="polite">
+                {current.detected}
+                <span className="live-count-of t-label-lg">{total !== null ? ` / ${total}` : ' shots'}</span>
+              </p>
+            </div>
+            {total !== null && (
+              <ProgressBar tone="on-color" label="Drill progress" value={(current.detected / total) * 100} />
+            )}
+          </div>
+        )}
 
         <div className="court-stage court-stage-live">
           <Court
@@ -111,46 +116,27 @@ export function LiveScreen() {
             zones={targeted && current?.targetZone ? [{ id: current.targetZone, emphasis: 'target' }] : []}
           />
           <p className="court-caption t-caption">
-            <Camera />
+            <Icon name="videocam" size={18} />
             {idle ? 'Repeat or add a drill to keep tracking' : 'Camera is tracking your shots'}
           </p>
         </div>
-
-        {current && (
-          <div className="drilling">
-            <div className="row-between">
-              <div className="stack-4">
-                <p className="t-overline drilling-kicker">{idle ? 'Cart complete' : 'Now drilling'}</p>
-                <p className="t-display-md">{shotLabel(current.shotId)}</p>
-                {targeted && current.targetZone && (
-                  <p className="t-label-sm drilling-kicker">Aiming for {getZone(current.targetZone).label}</p>
-                )}
-              </div>
-              <p className="live-count t-stat-lg" aria-live="polite">
-                {current.detected}
-                <span className="live-count-of t-stat-sm">{total !== null ? ` / ${total}` : ' shots'}</span>
-              </p>
-            </div>
-            {total !== null &&
-              (total <= MAX_TICKS ? (
-                <Ticks total={total} done={current.detected} />
-              ) : (
-                <ProgressBar tone="on-dark" label="Drill progress" value={(current.detected / total) * 100} />
-              ))}
-          </div>
-        )}
 
         {next && <p className="up-next t-label-sm">Up next: {shotLabel(next.shotId)}</p>}
       </div>
 
       <section className="dock" aria-label="Session controls">
         <div className="dock-pair">
-          <Button variant="secondary" icon={<Repeat />} sublabel={repeatText} onClick={actions.redoLive}>
+          <Button
+            variant="secondary"
+            icon={<Icon name="replay" size={26} />}
+            sublabel={repeatText}
+            onClick={actions.redoLive}
+          >
             Redo
           </Button>
           <Button
             variant="secondary"
-            icon={<Plus />}
+            icon={<Icon name="add" size={26} />}
             sublabel="Open the shot cart"
             onClick={actions.trainAnother}
           >
@@ -160,7 +146,7 @@ export function LiveScreen() {
         <Button
           full
           variant="accent"
-          icon={<Stop />}
+          icon={<Icon name="stop" size={26} />}
           sublabel="Your training results open next"
           onClick={actions.requestEnd}
         >

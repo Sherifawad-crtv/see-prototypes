@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { IconButton } from './controls.tsx';
-import { ChevronLeft } from './icons.tsx';
+import { Icon } from './icons.tsx';
 
-interface NavBarProps {
+interface PageHeaderProps {
   title: string;
   subtitle?: string;
   onBack: () => void;
@@ -10,18 +10,18 @@ interface NavBarProps {
   steps?: { current: number; labels: string[] };
 }
 
-export function NavBar({ title, subtitle, onBack, trailing, steps }: NavBarProps) {
+export function PageHeader({ title, subtitle, onBack, trailing, steps }: PageHeaderProps) {
   return (
-    <header className="navbar">
-      <div className="navbar-row">
+    <header className="page-header">
+      <div className="page-header-row">
         <IconButton variant="secondary" label="Back" onClick={onBack}>
-          <ChevronLeft />
+          <Icon name="chevron_left" size={28} />
         </IconButton>
-        <div className="navbar-title">
-          <h1 className="t-display-sm">{title}</h1>
+        <div className="page-header-title">
+          <h1 className="t-h3">{title}</h1>
           {subtitle && <p className="t-body-sm text-2">{subtitle}</p>}
         </div>
-        {trailing && <div className="navbar-trailing">{trailing}</div>}
+        {trailing}
       </div>
       {steps && (
         <ol className="steps" aria-label="Progress">

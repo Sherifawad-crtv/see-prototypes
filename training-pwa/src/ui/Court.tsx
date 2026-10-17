@@ -3,7 +3,7 @@ import { shotLabel } from '../domain/catalog.ts';
 import type { ZoneId } from '../domain/types.ts';
 import { getZone, ZONES } from '../domain/zones.ts';
 import { Tooltip } from './controls.tsx';
-import { Check } from './icons.tsx';
+import { Icon } from './icons.tsx';
 
 export interface CourtDot {
   id: string;
@@ -170,7 +170,7 @@ export function Court({
                 top: `${pct(NET_Y - zone.cy * NET_Y, box.y, box.h)}%`,
               }}
             >
-              {selected && <Check />}
+              {selected && <Icon name="check" size={16} />}
               {zone.label}
             </span>
           );

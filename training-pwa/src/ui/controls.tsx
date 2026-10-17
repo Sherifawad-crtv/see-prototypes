@@ -91,7 +91,6 @@ interface ChipProps {
   onClick?: () => void;
   children: ReactNode;
   pressed?: boolean;
-  block?: boolean;
 }
 
 export function Chip({
@@ -100,9 +99,8 @@ export function Chip({
   onClick,
   children,
   pressed,
-  block = false,
 }: ChipProps) {
-  const variant = `${accent ? 'chip-accent' : selected ? 'chip-selected' : ''}${block ? ' chip-block' : ''}`;
+  const variant = accent ? 'chip-accent' : selected ? 'chip-selected' : '';
   const content = <span className="chip-inner">{children}</span>;
   return onClick ? (
     <button
@@ -160,7 +158,7 @@ export function ProgressBar({
 }: {
   value: number;
   label: string;
-  tone?: 'default' | 'on-dark';
+  tone?: 'default' | 'on-color';
 }) {
   const clamped = Math.min(100, Math.max(0, value));
   return (
@@ -177,27 +175,6 @@ export function ProgressBar({
   );
 }
 
-interface StatCardProps {
-  label: string;
-  value: ReactNode;
-  suffix?: string;
-  delta?: string;
-  variant?: 'default' | 'brand';
-}
-
-export function StatCard({ label, value, suffix, delta, variant = 'default' }: StatCardProps) {
-  return (
-    <div className={`stat-card stat-card-${variant}`}>
-      <span className="t-overline stat-label">{label}</span>
-      <span className="stat-value">
-        <span className="t-stat-lg">{value}</span>
-        {suffix && <span className="t-stat-sm stat-suffix">{suffix}</span>}
-      </span>
-      {delta && <span className="t-caption stat-delta">{delta}</span>}
-    </div>
-  );
-}
-
 export function Tooltip({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <div className={`tooltip t-label-sm ${className}`} role="status">
@@ -206,6 +183,3 @@ export function Tooltip({ children, className = '' }: { children: ReactNode; cla
   );
 }
 
-export function Divider() {
-  return <hr className="divider" />;
-}
