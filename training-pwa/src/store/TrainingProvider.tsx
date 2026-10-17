@@ -72,11 +72,11 @@ function createActions(
     },
     trainAgain() {
       dispatch({ type: 'session/new', id: uid(), at: now() });
-      nav.replace('cart');
+      nav.replace('add');
     },
     startTraining() {
       dispatch({ type: 'session/new', id: uid(), at: now() });
-      nav.push('cart');
+      nav.push('add');
     },
     openAdd() {
       nav.push('add');
@@ -130,7 +130,18 @@ function createActions(
       nav.popTo('add');
     },
     viewCart() {
-      nav.popTo('cart');
+      if (getState().stack.includes('cart')) nav.popTo('cart');
+      else nav.replace('cart');
+    },
+    emptiedCart() {
+      nav.replace('add');
+    },
+    addBack() {
+      const { session, stack } = getState();
+      if (stack.includes('cart')) return nav.popTo('cart');
+      if (session && session.cart.length > 0) return nav.replace('cart');
+      dispatch({ type: 'session/discard' });
+      nav.leave();
     },
     moveItem(id: string, dir: -1 | 1) {
       dispatch({ type: 'cart/move', id, dir });
@@ -321,11 +332,14 @@ export function TrainingProvider({ children }: { children: ReactNode }) {
           dispatch({ type: 'sheet', sheet: 'endConfirm' });
           return;
         }
-        if (screen === 'cart' && current.session?.phase === 'building' && current.session.cart.length > 0) {
+        const building = current.session?.phase === 'building';
+        const leavesCart = screen === 'cart' || (screen === 'add' && !current.stack.includes('cart'));
+        if (leavesCart && building && current.session && current.session.cart.length > 0) {
           history.pushState({ i: depth.current }, '');
           dispatch({ type: 'sheet', sheet: 'discard' });
           return;
         }
+        if (leavesCart && building) dispatch({ type: 'session/discard' });
       }
       depth.current = index;
       dispatch({ type: 'nav/sync', depth: index });

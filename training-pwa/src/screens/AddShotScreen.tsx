@@ -36,7 +36,7 @@ export function AddShotScreen() {
       <PageHeader
         title="Add a Shot"
         subtitle="Add as many as you like, then view your cart"
-        onBack={actions.viewCart}
+        onBack={actions.addBack}
         steps={{ current: 0, labels: STEPS[draft.mode] }}
       />
       <div className="screen-body">
@@ -78,7 +78,11 @@ export function AddShotScreen() {
           <p className="t-overline text-2">In cart</p>
           <p className="t-h4">{plural(cart.length, 'drill')}</p>
         </div>
-        <Button icon={<Icon name="arrow_forward" size={24} />} onClick={actions.viewCart}>
+        <Button
+          icon={<Icon name="arrow_forward" size={24} />}
+          disabled={cart.length === 0}
+          onClick={actions.viewCart}
+        >
           View cart
         </Button>
       </footer>

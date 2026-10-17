@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { shotLabel } from '../domain/catalog.ts';
 import type { CartItem } from '../domain/types.ts';
 import { getZone } from '../domain/zones.ts';
@@ -98,7 +99,11 @@ function DrillCard({ item, index, cart }: { item: CartItem; index: number; cart:
 export function CartScreen() {
   const { state, actions } = useTraining();
   const session = state.session;
-  if (!session) return null;
+  const emptied = session?.phase === 'building' && session.cart.length === 0;
+  useEffect(() => {
+    if (emptied) actions.emptiedCart();
+  }, [emptied, actions]);
+  if (!session || emptied) return null;
   const { cart } = session;
   const full = cart.length >= MAX_DRILLS;
   const canStart = session.phase === 'paused' || cart.some((item) => item.status === 'upcoming');
@@ -108,30 +113,15 @@ export function CartScreen() {
     <main className="screen">
       <PageHeader title="Shot Cart" subtitle="Shots play from top to bottom" onBack={actions.cartBack} />
       <div className="screen-body">
-        {cart.length === 0 ? (
-          <div className="empty-hero">
-            <div className="empty-art" aria-hidden="true">
-              <Icon name="sports_tennis" size={56} />
-            </div>
-            <p className="t-display-sm">Add your first shot</p>
-            <p className="t-body text-2">Pick a shot, choose how many, and stack up your drills.</p>
-            <Button icon={<Icon name="add" size={24} />} onClick={actions.openAdd}>
-              Add shot
-            </Button>
-          </div>
-        ) : (
-          <>
-            <ol className="timeline list-reset">
-              {cart.map((item, index) => (
-                <DrillCard key={item.id} item={item} index={index} cart={cart} />
-              ))}
-            </ol>
-            <button type="button" className="add-shot t-h4" disabled={full} onClick={actions.openAdd}>
-              <Icon name="add" size={26} /> Add shot
-            </button>
-            {full && <p className="t-body-sm text-2 center">Cart is full</p>}
-          </>
-        )}
+        <ol className="timeline list-reset">
+          {cart.map((item, index) => (
+            <DrillCard key={item.id} item={item} index={index} cart={cart} />
+          ))}
+        </ol>
+        <button type="button" className="add-shot t-h4" disabled={full} onClick={actions.openAdd}>
+          <Icon name="add" size={26} /> Add shot
+        </button>
+        {full && <p className="t-body-sm text-2 center">Cart is full</p>}
       </div>
       <footer className="float-bar">
         <div className="float-info">
