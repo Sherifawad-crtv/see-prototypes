@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { onTarget, summarise, totals } from './stats.ts';
+import { activity, onTarget, summarise, totals } from './stats.ts';
 import type { CartItem, Session, ShotEvent, ZoneId } from './types.ts';
 
 const T0 = '2026-01-01T10:00:00.000Z';
@@ -147,5 +147,17 @@ describe('summarise', () => {
   it('has no on-target percentage for Free-only sessions', () => {
     const s = session([item('a', 'lob', 'free')], [shot('a', 'lob', 0.5, 0.5)]);
     assert.equal(summarise(s).onTargetPct, undefined);
+  });
+});
+
+describe('activity', () => {
+  it('is zero for an empty session', () => {
+    assert.deepEqual(activity(empty), { distanceKm: 0, calories: 0 });
+  });
+
+  it('estimates distance and calories from shots and duration', () => {
+    const shots = Array.from({ length: 100 }, () => shot('a', 'lob', 0.5, 0.5));
+    const s = session([item('a', 'lob', 'free')], shots, '2026-01-01T10:30:00.000Z');
+    assert.deepEqual(activity(s), { distanceKm: 1.3, calories: 210 });
   });
 });

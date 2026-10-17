@@ -1,4 +1,4 @@
-import { summarise, totals } from '../domain/stats.ts';
+import { activity, summarise, totals } from '../domain/stats.ts';
 import type { Session } from '../domain/types.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
 import { ColorBlock, Panel } from '../ui/blocks.tsx';
@@ -11,6 +11,8 @@ import { PageHeader } from '../ui/PageHeader.tsx';
 function ResultsBody({ session }: { session: Session }) {
   const sums = totals(session);
   const summary = summarise(session);
+  const freeOnly = sums.targeted === 0;
+  const effort = activity(session);
   const headline = sums.free > 0 && sums.targeted > 0 ? 'Mixed session' : sums.targeted > 0 ? 'Targeted session' : 'Free session';
 
   const dots: CourtDot[] = session.shots.map((shot) => ({
@@ -47,14 +49,26 @@ function ResultsBody({ session }: { session: Session }) {
       ) : (
         <>
           <div className="blocks">
-            <ColorBlock tone="blue" label="TOTAL SHOTS" value={sums.total} shape="swoosh" />
+            <ColorBlock tone="blue" label="TOTAL SHOTS" value={sums.total} shape="court" />
             <ColorBlock
               tone="orange"
               label="DURATION"
               value={formatDurationClock(summary.durationSec)}
               unit="min"
-              shape="flame"
+              shape="court"
             />
+            {freeOnly && (
+              <>
+                <ColorBlock
+                  tone="blue"
+                  label="DISTANCE COVERED"
+                  value={effort.distanceKm.toFixed(2)}
+                  unit="Km"
+                  shape="swoosh"
+                />
+                <ColorBlock tone="orange" label="TOTAL CALORIES" value={effort.calories} unit="KCAL" shape="flame" />
+              </>
+            )}
           </div>
 
           <Panel icon="my_location" title="Shot Placement" subtitle="Where your shots landed on court">

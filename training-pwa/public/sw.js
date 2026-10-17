@@ -1,4 +1,4 @@
-const CACHE = 'see-training-v5';
+const CACHE = 'see-training-v6';
 const SHELL = [
   '/',
   '/manifest.webmanifest',
@@ -9,6 +9,7 @@ const SHELL = [
   '/fonts/inter-latin-wght-normal.woff2',
   '/fonts/inter-latin-wght-italic.woff2',
   '/fonts/obviously-bold-italic.woff2',
+  '/fonts/obviously-bold.woff2',
   '/images/training-hero.webp',
   '/images/empty-racket.webp',
 ];

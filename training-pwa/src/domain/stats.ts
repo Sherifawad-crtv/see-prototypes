@@ -84,3 +84,22 @@ export function summarise(session: Session): SessionSummary {
     ...(targeted.total > 0 ? { onTargetPct: targeted.pct } : {}),
   };
 }
+
+export const METRES_PER_SHOT = 4;
+export const METRES_PER_SECOND = 0.5;
+export const KCAL_PER_MINUTE = 7;
+
+export interface Activity {
+  distanceKm: number;
+  calories: number;
+}
+
+/** Mock estimate. The real tracker will report measured distance and energy. */
+export function activity(session: Session): Activity {
+  const { durationSec, totalShots } = summarise(session);
+  const metres = totalShots * METRES_PER_SHOT + durationSec * METRES_PER_SECOND;
+  return {
+    distanceKm: Math.round(metres / 10) / 100,
+    calories: Math.round((durationSec / 60) * KCAL_PER_MINUTE),
+  };
+}

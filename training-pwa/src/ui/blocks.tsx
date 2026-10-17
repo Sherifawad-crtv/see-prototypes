@@ -57,22 +57,21 @@ interface ColorBlockProps {
   label: string;
   value: ReactNode;
   unit?: string;
-  pct?: string;
   shape: ShapeKind;
   wide?: boolean;
 }
 
-export function ColorBlock({ tone, label, value, unit, pct, shape, wide = false }: ColorBlockProps) {
+export function ColorBlock({ tone, label, value, unit, shape, wide = false }: ColorBlockProps) {
+  const long = String(value).length > 4;
   return (
     <div className={`block block-${tone}${wide ? ' block-wide' : ''}`}>
       <Shape kind={shape} />
       <p className="t-block-label block-label">{label}</p>
       <hr className="block-rule" />
       <p className="block-value">
-        <span className="t-display-lg">{value}</span>
-        {unit && <span className="t-label-lg block-unit">{unit}</span>}
+        <span className={long ? 't-block-value-sm' : 't-block-value'}>{value}</span>
+        {unit && <span className="t-block-label block-unit">{unit}</span>}
       </p>
-      {pct && <span className="block-pct t-stat-sm">{pct}</span>}
     </div>
   );
 }
