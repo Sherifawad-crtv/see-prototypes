@@ -149,7 +149,7 @@ function createActions(
     redoItem(id: string) {
       const { session } = getState();
       if (session && session.cart.length >= MAX_DRILLS) {
-        dispatch({ type: 'toast', text: 'Cart is full' });
+        dispatch({ type: 'toast', text: 'List is full' });
         return;
       }
       dispatch({ type: 'cart/redo', id, newId: uid() });
@@ -172,7 +172,7 @@ function createActions(
       const { session } = getState();
       if (!session) return;
       if (session.cart.length >= MAX_DRILLS) {
-        dispatch({ type: 'toast', text: 'Cart is full' });
+        dispatch({ type: 'toast', text: 'List is full' });
         return;
       }
       const source: CartItem | undefined = runningItem(session) ?? session.cart.at(-1);
@@ -180,7 +180,7 @@ function createActions(
       dispatch({ type: 'live/redo', newId: uid() });
       dispatch({
         type: 'toast',
-        text: `Added ${shotLabel(source.shotId)} ${amountText(source.amount)} to your cart`,
+        text: `Added ${shotLabel(source.shotId)} ${amountText(source.amount)} to your list`,
       });
     },
     requestEnd() {

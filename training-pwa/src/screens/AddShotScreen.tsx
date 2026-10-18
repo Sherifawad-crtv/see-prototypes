@@ -4,7 +4,7 @@ import { useTraining } from '../store/TrainingProvider.tsx';
 import { MAX_DRILLS } from '../store/reducer.ts';
 import { Button, Tabs } from '../ui/controls.tsx';
 import { plural } from '../ui/format.ts';
-import { Icon, type IconName } from '../ui/icons.tsx';
+import { Icon } from '../ui/icons.tsx';
 import { PageHeader } from '../ui/PageHeader.tsx';
 
 const MODES: { value: Mode; label: string }[] = [
@@ -17,14 +17,6 @@ export const STEPS: Record<Mode, string[]> = {
   targeted: ['Shot', 'Target', 'Amount'],
 };
 
-const SHOT_ICONS: Record<string, IconName> = {
-  serve: 'sports_tennis',
-  groundstroke: 'swap_horiz',
-  volley: 'bolt',
-  overhead: 'keyboard_double_arrow_up',
-  lob: 'rocket_launch',
-};
-
 export function AddShotScreen() {
   const { state, actions } = useTraining();
   const { draft, sheet, session } = state;
@@ -35,7 +27,7 @@ export function AddShotScreen() {
     <main className="screen">
       <PageHeader
         title="Add a Shot"
-        subtitle="Add as many as you like, then view your cart"
+        subtitle="Add as many as you like, then view your list"
         onBack={actions.addBack}
         steps={{ current: 0, labels: STEPS[draft.mode] }}
       />
@@ -51,31 +43,33 @@ export function AddShotScreen() {
               : 'Pick a zone to aim for. Every shot is scored as a hit or a miss.'}
           </p>
         </div>
-        <div className="shot-grid">
+        <div className="shot-list">
           {SHOTS.map((shot) => {
-            const inCart = cart.filter((item) => item.shotId === shot.id).length;
+            const inList = cart.filter((item) => item.shotId === shot.id).length;
             const selected = sheet === 'amount' && draft.shotId === shot.id;
             return (
               <button
                 key={shot.id}
                 type="button"
                 aria-pressed={selected}
-                className={`shot-tile${selected ? ' shot-tile-on' : ''}`}
+                className={`shot-row${selected ? ' shot-row-on' : ''}`}
                 onClick={() => actions.pickShot(shot.id)}
               >
-                <span className="t-stat-sm shot-tile-name">{shot.label}</span>
-                <span className="t-body-sm text-2 shot-tile-caption">{shot.alias ?? 'Shot'}</span>
-                {inCart > 0 && <span className="chip-count t-caption-b">{inCart}</span>}
-                <Icon name={SHOT_ICONS[shot.id] ?? 'sports_tennis'} size={72} className="tile-icon" />
+                <span className="shot-row-name">
+                  <span className="t-label-lg">{shot.label}</span>
+                  {shot.alias && <span className="t-body-sm text-3">{shot.alias}</span>}
+                </span>
+                {inList > 0 && <span className="count-badge t-caption-b">{inList}</span>}
+                <Icon name="chevron_right" size={28} />
               </button>
             );
           })}
         </div>
-        {full && <p className="t-body-sm text-2 center">Cart is full</p>}
+        {full && <p className="t-body-sm text-2 center">List is full</p>}
       </div>
       <footer className="float-bar">
         <div className="float-info">
-          <p className="t-overline text-2">In cart</p>
+          <p className="t-overline text-2">In list</p>
           <p className="t-h4">{plural(cart.length, 'drill')}</p>
         </div>
         <Button
@@ -83,7 +77,7 @@ export function AddShotScreen() {
           disabled={cart.length === 0}
           onClick={actions.viewCart}
         >
-          View cart
+          View list
         </Button>
       </footer>
     </main>

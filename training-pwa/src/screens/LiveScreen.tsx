@@ -87,7 +87,7 @@ export function LiveScreen() {
         {current && (
           <div className="block block-blue drilling">
             <Shape kind="court" />
-            <p className="t-block-label block-label">{idle ? 'Cart complete' : 'Now drilling'}</p>
+            <p className="t-block-label block-label">{idle ? 'List complete' : 'Now drilling'}</p>
             <hr className="block-rule" />
             <div className="drilling-row">
               <div className="stack-4">
@@ -136,7 +136,7 @@ export function LiveScreen() {
           <Button
             variant="secondary"
             icon={<Icon name="add" size={26} />}
-            sublabel="Open the shot cart"
+            sublabel="Open the shot list"
             onClick={actions.trainAnother}
           >
             Train Another Shot

@@ -106,7 +106,7 @@ export function CartScreen() {
 
   return (
     <main className="screen">
-      <PageHeader title="Shot Cart" subtitle="Shots play from top to bottom" onBack={actions.cartBack} />
+      <PageHeader title="Shot List" subtitle="Shots play from top to bottom" onBack={actions.cartBack} />
       <div className="screen-body">
         <ol className="timeline list-reset">
           {cart.map((item, index) => (
@@ -116,11 +116,11 @@ export function CartScreen() {
         <button type="button" className="add-shot t-h4" disabled={full} onClick={actions.openAdd}>
           <Icon name="add" size={26} /> Add shot
         </button>
-        {full && <p className="t-body-sm text-2 center">Cart is full</p>}
+        {full && <p className="t-body-sm text-2 center">List is full</p>}
       </div>
       <footer className="float-bar">
         <div className="float-info">
-          <p className="t-overline text-2">In cart</p>
+          <p className="t-overline text-2">In list</p>
           <p className="t-h4">
             {plural(cart.length, 'drill')}
             {session.phase !== 'building' && upcoming > 0 && ` · ${upcoming} to go`}

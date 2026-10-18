@@ -61,7 +61,7 @@ function AmountSheet() {
         onChange={actions.setDraftAmount}
       />
       <Button full disabled={full} icon={<Icon name="add" size={26} />} onClick={actions.addToCart}>
-        Add to cart
+        Add
       </Button>
     </Sheet>
   );
@@ -96,8 +96,8 @@ function EndConfirmSheet() {
 function DiscardSheet() {
   const { actions } = useTraining();
   return (
-    <Sheet title="Discard this cart?" onClose={actions.closeSheet}>
-      <SheetTitle title="Discard this cart?" onClose={actions.closeSheet} />
+    <Sheet title="Discard this list?" onClose={actions.closeSheet}>
+      <SheetTitle title="Discard this list?" onClose={actions.closeSheet} />
       <div className="stack-12">
         <OptionCard
           icon="delete"
@@ -110,7 +110,7 @@ function DiscardSheet() {
         <OptionCard
           icon="sports_tennis"
           title="Keep editing"
-          subtitle="Back to your shot cart"
+          subtitle="Back to your shot list"
           action="arrow_forward"
           onClick={actions.closeSheet}
         />
