@@ -43,7 +43,7 @@ function AmountSheet() {
       </div>
       {draft.mode === 'targeted' && draft.targetArea && (
         <div className="sheet-target">
-          <AreaThumb area={draft.targetArea} />
+          <AreaThumb area={draft.targetArea} cones={draft.cones} />
           <div className="stack-4">
             <p className="t-overline-sm text-2">Aiming for</p>
             <Chip accent>{areaLabel(draft.targetArea)}</Chip>

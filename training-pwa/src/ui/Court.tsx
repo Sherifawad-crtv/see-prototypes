@@ -1,7 +1,7 @@
 import { useRef, useState, type PointerEvent } from 'react';
 import { shotLabel } from '../domain/catalog.ts';
 import { areaAround, areaFrom, areaLabel, clamp01, MIN_AREA } from '../domain/court.ts';
-import type { Area } from '../domain/types.ts';
+import type { Area, Cone } from '../domain/types.ts';
 import { Tooltip } from './controls.tsx';
 
 export interface CourtDot {
@@ -20,6 +20,9 @@ interface CourtProps {
   areas?: Area[];
   area?: Area | null;
   onAreaChange?: (area: Area) => void;
+  tool?: 'frame' | 'cones';
+  cones?: Cone[];
+  onConesChange?: (cones: Cone[]) => void;
 }
 
 type Point = { x: number; y: number };
@@ -27,8 +30,10 @@ type Handle = 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w';
 type Drag =
   | { kind: 'draw'; anchor: Point; moved: boolean }
   | { kind: 'move'; start: Point; origin: Area }
-  | { kind: 'resize'; handle: Handle; origin: Area };
+  | { kind: 'resize'; handle: Handle; origin: Area }
+  | { kind: 'cone'; index: number | null; at: Point };
 
+export const MAX_CONES = 8;
 const PAD = 2;
 const COURT_W = 100;
 const COURT_H = 200;
@@ -99,6 +104,9 @@ export function Court({
   areas = [],
   area = null,
   onAreaChange,
+  tool = 'frame',
+  cones = [],
+  onConesChange,
 }: CourtProps) {
   const box = viewBoxOf(view);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -118,6 +126,11 @@ export function Court({
   const onPointerDown = (event: PointerEvent<SVGSVGElement>) => {
     if (!selecting) return;
     const point = toCourt(event);
+    if (tool === 'cones') {
+      const hit = (event.target as Element).closest('[data-cone]')?.getAttribute('data-cone');
+      drag.current = { kind: 'cone', index: hit === null || hit === undefined ? null : Number(hit), at: point };
+      return;
+    }
     const handle = (event.target as Element).closest('[data-handle]')?.getAttribute('data-handle') as Handle | null;
     if (area && handle) drag.current = { kind: 'resize', handle, origin: area };
     else if (area && point.x >= area.x0 && point.x <= area.x1 && point.y >= area.y0 && point.y <= area.y1) {
@@ -128,7 +141,7 @@ export function Court({
 
   const onPointerMove = (event: PointerEvent<SVGSVGElement>) => {
     const current = drag.current;
-    if (!current || !onAreaChange) return;
+    if (!current || current.kind === 'cone' || !onAreaChange) return;
     const point = toCourt(event);
     if (current.kind === 'draw') {
       if (Math.hypot(point.x - current.anchor.x, point.y - current.anchor.y) < DRAW_THRESHOLD) return;
@@ -145,6 +158,11 @@ export function Court({
   const onPointerUp = (event: PointerEvent<SVGSVGElement>) => {
     const current = drag.current;
     drag.current = null;
+    if (current?.kind === 'cone') {
+      if (current.index !== null) onConesChange?.(cones.filter((_, i) => i !== current.index));
+      else if (cones.length < MAX_CONES) onConesChange?.([...cones, current.at]);
+      return;
+    }
     if (current?.kind === 'draw' && !current.moved) onAreaChange?.(areaAround(toCourt(event)));
   };
 
@@ -161,10 +179,10 @@ export function Court({
     <div className="court">
       <svg
         ref={svgRef}
-        className={`court-svg${selecting ? ' court-draw' : ''}`}
+        className={`court-svg${selecting ? ' court-draw' : ''}${tool === 'cones' ? ' court-cones' : ''}`}
         viewBox={`${box.x} ${box.y} ${box.w} ${box.h}`}
         role="img"
-        aria-label={selecting ? 'Padel court. Drag to draw your target area' : 'Padel court, opponent half at the top'}
+        aria-label={selecting ? (tool === 'cones' ? 'Padel court. Tap to place or remove cones' : 'Padel court. Drag to draw your target area') : 'Padel court, opponent half at the top'}
         onClick={() => setActiveDot(null)}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -200,10 +218,22 @@ export function Court({
           <rect key={index} {...rectOf(outline)} className="area area-outline" pointerEvents="none" />
         ))}
 
+        {cones.map((cone, index) => {
+          const cx = cone.x * COURT_W;
+          const cy = NET_Y - cone.y * NET_Y;
+          return (
+            <g key={index} data-cone={index} className="cone" role="img" aria-label="Cone">
+              <circle cx={cx} cy={cy} r={5.5} className="cone-hit" />
+              <ellipse cx={cx} cy={cy + 1.8} rx={2.8} ry={1.1} className="cone-base" />
+              <path d={`M${cx} ${cy - 3} L${cx + 2.3} ${cy + 1.8} L${cx - 2.3} ${cy + 1.8} Z`} className="cone-body" />
+            </g>
+          );
+        })}
+
         {selecting && editRect && (
-          <g>
+          <g className={tool === 'cones' ? 'frame-locked' : undefined}>
             <rect {...editRect} className="area area-edit" />
-            {HANDLES.map((handle) => (
+            {tool === 'frame' && HANDLES.map((handle) => (
               <g
                 key={handle.id}
                 data-handle={handle.id}

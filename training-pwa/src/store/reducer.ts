@@ -1,6 +1,7 @@
 import type {
   Amount,
   Area,
+  Cone,
   CartItem,
   Mode,
   Session,
@@ -21,6 +22,7 @@ export interface Draft {
   mode: Mode;
   shotId: string | null;
   targetArea: Area | null;
+  cones: Cone[];
   amount: Amount;
 }
 
@@ -54,8 +56,9 @@ export type Action =
   | { type: 'session/new'; id: string; at: string }
   | { type: 'session/discard' }
   | { type: 'draft/mode'; mode: Mode }
-  | { type: 'draft/pick'; shotId: string; reuseArea: Area | null }
-  | { type: 'draft/area'; area: Area }
+  | { type: 'draft/pick'; shotId: string; reuseArea: Area | null; reuseCones: Cone[] }
+  | { type: 'draft/area'; area: Area | null }
+  | { type: 'draft/cones'; cones: Cone[] }
   | { type: 'draft/amount'; amount: Amount }
   | { type: 'cart/add'; id: string }
   | { type: 'cart/move'; id: string; dir: -1 | 1 }
@@ -81,6 +84,7 @@ export const initialState: State = {
     mode: 'free',
     shotId: null,
     targetArea: null,
+    cones: [],
     amount: { kind: 'count', n: DEFAULT_COUNT },
   },
   lastCounts: {},
@@ -139,6 +143,7 @@ function copyOf(source: CartItem, id: string): CartItem {
     status: 'upcoming',
     detected: 0,
     ...(source.targetArea ? { targetArea: source.targetArea } : {}),
+    ...(source.cones?.length ? { cones: source.cones } : {}),
   };
 }
 
@@ -195,11 +200,14 @@ export function reducer(state: State, action: Action): State {
           ...state.draft,
           shotId: action.shotId,
           targetArea: state.draft.mode === 'targeted' ? action.reuseArea : null,
+          cones: state.draft.mode === 'targeted' ? action.reuseCones : [],
           amount: { kind: 'count', n: DEFAULT_COUNT },
         },
       };
     case 'draft/area':
       return { ...state, draft: { ...state.draft, targetArea: action.area } };
+    case 'draft/cones':
+      return { ...state, draft: { ...state.draft, cones: action.cones } };
     case 'draft/amount':
       return {
         ...state,
@@ -219,20 +227,21 @@ export function reducer(state: State, action: Action): State {
         status: 'upcoming',
         detected: 0,
         ...(area ? { targetArea: area } : {}),
+        ...(area && draft.cones.length ? { cones: draft.cones } : {}),
       };
       const retargeted = session.cart.map((existing) =>
         area &&
         existing.status === 'upcoming' &&
         existing.mode === 'targeted' &&
         existing.shotId === draft.shotId
-          ? { ...existing, targetArea: area }
+          ? { ...existing, targetArea: area, cones: draft.cones }
           : existing,
       );
       return {
         ...state,
         sheet: null,
         session: { ...session, cart: [...retargeted, item] },
-        draft: { ...draft, shotId: null, targetArea: null },
+        draft: { ...draft, shotId: null, targetArea: null, cones: [] },
       };
     }
     case 'cart/move':

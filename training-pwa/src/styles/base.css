@@ -491,3 +491,12 @@ button.chip::after { content: ''; position: absolute; inset: -4px 0; }
 .handle-n, .handle-s { cursor: ns-resize; }
 .handle-e, .handle-w { cursor: ew-resize; }
 .area-size { position: absolute; transform: translate(-50%, var(--s-8)); padding: var(--s-2) var(--s-8); border-radius: var(--r-sm); background: var(--accent-strong); color: var(--neutral-0); white-space: nowrap; pointer-events: none; }
+
+.cone { cursor: pointer; }
+.cone-hit { fill: transparent; }
+.cone-body { fill: var(--accent-strong); stroke: var(--neutral-0); stroke-width: 1.2px; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.cone-base { fill: var(--neutral-0); stroke: var(--accent-strong); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.court-cones { cursor: copy; }
+.frame-locked { pointer-events: none; opacity: 0.55; }
+.thumb-cone { fill: var(--neutral-0); stroke: var(--accent-strong); stroke-width: 3px; }
+.tool-actions { display: flex; justify-content: center; }

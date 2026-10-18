@@ -75,7 +75,7 @@ function DrillCard({ item, index, cart }: { item: CartItem; index: number; cart:
 
         {item.mode === 'targeted' && item.targetArea && (
           <div className="drill-target">
-            <AreaThumb area={item.targetArea} />
+            <AreaThumb area={item.targetArea} cones={item.cones} />
             <div>
               <p className="t-overline-sm text-2">Aiming for</p>
               <p className="t-label">{areaLabel(item.targetArea)}</p>

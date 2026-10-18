@@ -32,6 +32,10 @@ function ResultsBody({ session }: { session: Session }) {
     .filter((item) => item.targetArea && session.shots.some((shot) => shot.cartItemId === item.id))
     .map((item) => item.targetArea as Area);
 
+  const cones = session.cart
+    .filter((item) => session.shots.some((shot) => shot.cartItemId === item.id))
+    .flatMap((item) => item.cones ?? []);
+
   return (
     <>
       {sums.total === 0 ? (
@@ -77,7 +81,7 @@ function ResultsBody({ session }: { session: Session }) {
 
           <Panel icon="my_location" title="Shot Placement" subtitle="Where your shots landed on court">
             <div className="court-stage">
-              <Court mode="results" view="full" dots={dots} areas={areas} />
+              <Court mode="results" view="full" dots={dots} areas={areas} cones={cones} />
             </div>
             {sums.targeted > 0 && (
               <div className="court-legend t-caption">

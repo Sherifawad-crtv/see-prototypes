@@ -16,6 +16,12 @@ export interface Area {
   y1: number;
 }
 
+/** A cone placed on the opponent half, in the same 0–1 space as Area. */
+export interface Cone {
+  x: number;
+  y: number;
+}
+
 export type Amount = { kind: 'count'; n: number } | { kind: 'basket' };
 
 export interface CartItem {
@@ -24,6 +30,7 @@ export interface CartItem {
   mode: Mode;
   amount: Amount;
   targetArea?: Area;
+  cones?: Cone[];
   status: 'upcoming' | 'running' | 'done';
   detected: number;
 }

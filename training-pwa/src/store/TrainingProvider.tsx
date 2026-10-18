@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import { shotLabel } from '../domain/catalog.ts';
-import type { Amount, Area, Mode, Session } from '../domain/types.ts';
+import type { Amount, Area, Cone, Mode, Session } from '../domain/types.ts';
 import { repository, tracker } from '../services/index.ts';
 import {
   finalizeSession,
@@ -29,9 +29,12 @@ export function amountText(amount: Amount): string {
   return amount.kind === 'count' ? `× ${amount.n}` : '· Full basket';
 }
 
-export function reusableArea(session: Session | null, shotId: string): Area | null {
+export function reusableTarget(
+  session: Session | null,
+  shotId: string,
+): { area: Area | null; cones: Cone[] } {
   const match = session?.cart.findLast((item) => item.mode === 'targeted' && item.shotId === shotId);
-  return match?.targetArea ?? null;
+  return { area: match?.targetArea ?? null, cones: match?.cones ?? [] };
 }
 
 function createActions(
@@ -106,13 +109,17 @@ function createActions(
     },
     pickShot(shotId: string) {
       const { session, draft } = getState();
-      const reuseArea = draft.mode === 'targeted' ? reusableArea(session, shotId) : null;
-      dispatch({ type: 'draft/pick', shotId, reuseArea });
+      const reuse = draft.mode === 'targeted' ? reusableTarget(session, shotId) : { area: null, cones: [] };
+      const reuseArea = reuse.area;
+      dispatch({ type: 'draft/pick', shotId, reuseArea, reuseCones: reuse.cones });
       if (draft.mode === 'targeted' && !reuseArea) nav.push('target');
       else dispatch({ type: 'sheet', sheet: 'amount' });
     },
-    setArea(area: Area) {
+    setArea(area: Area | null) {
       dispatch({ type: 'draft/area', area });
+    },
+    setCones(cones: Cone[]) {
+      dispatch({ type: 'draft/cones', cones });
     },
     confirmTarget() {
       dispatch({ type: 'sheet', sheet: 'amount' });
