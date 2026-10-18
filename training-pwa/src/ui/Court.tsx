@@ -1,6 +1,6 @@
 import { useRef, useState, type PointerEvent } from 'react';
 import { shotLabel } from '../domain/catalog.ts';
-import { circlesOf, clamp01, isComplete, MAX_CONES_PER_ZONE } from '../domain/court.ts';
+import { clamp01, polygonOf, isComplete, MAX_CONES_PER_ZONE } from '../domain/court.ts';
 import type { Zone } from '../domain/types.ts';
 import { Tooltip } from './controls.tsx';
 
@@ -100,7 +100,7 @@ export function Court({
     return `${shotLabel(dot.shotId)} · ${result}`;
   };
 
-  const circles = zones.map((zone) => (isComplete(zone) ? circlesOf([zone])[0] : null));
+  const shapes = zones.map((zone) => (zone.length >= 2 ? polygonOf(zone) : null));
 
   return (
     <div className="court">
@@ -140,18 +140,17 @@ export function Court({
         <circle cx={0} cy={NET_Y} r={1.6} className="court-post" />
         <circle cx={COURT_W} cy={NET_Y} r={1.6} className="court-post" />
 
-        {circles.map((c, index) =>
-          c ? (
-            <circle
-              key={index}
-              cx={c.x * COURT_W}
-              cy={NET_Y - c.y * NET_Y}
-              r={c.r * COURT_W}
-              className={`zone-circle${selecting && index === activeZone ? ' zone-circle-active' : ''}`}
-              pointerEvents="none"
-            />
-          ) : null,
-        )}
+        {shapes.map((shape, index) => {
+          if (!shape) return null;
+          const points = shape.map((p) => `${p.x * COURT_W},${NET_Y - p.y * NET_Y}`).join(' ');
+          const closed = isComplete(zones[index]);
+          const className = `zone-shape${closed ? '' : ' zone-open'}${selecting && index === activeZone ? ' zone-shape-active' : ''}`;
+          return closed ? (
+            <polygon key={index} points={points} className={className} pointerEvents="none" />
+          ) : (
+            <polyline key={index} points={points} className={className} pointerEvents="none" />
+          );
+        })}
 
         {zones.map((zone, zi) =>
           zone.map((cone, ci) => {

@@ -20,9 +20,9 @@ export function TargetScreen() {
   const unfinished = zones.findIndex((z) => z.length > 0 && !isComplete(z));
 
   const hint = unfinished >= 0
-    ? `Zone ${unfinished + 1} needs ${ZONE_MIN_CONES - zones[unfinished].length} more cone${ZONE_MIN_CONES - zones[unfinished].length === 1 ? '' : 's'} to close its circle.`
+    ? `Zone ${unfinished + 1} needs ${ZONE_MIN_CONES - zones[unfinished].length} more cone${ZONE_MIN_CONES - zones[unfinished].length === 1 ? '' : 's'} to join into a shape.`
     : zone.length === 0
-      ? `Tap the court to place cones. Once a zone has ${ZONE_MIN_CONES} cones a circle closes around them.`
+      ? `Tap the court to place cones. From ${ZONE_MIN_CONES} cones on, they join into a shape.`
       : 'Tap to add more cones, or tap a cone to remove it. Add another zone to aim at a second spot.';
 
   const removeZone = () => {

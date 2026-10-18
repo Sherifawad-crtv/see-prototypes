@@ -1,6 +1,6 @@
 import type { CartItem, ShotEvent } from '../domain/types.ts';
 import { getShot } from '../domain/catalog.ts';
-import { circlesOf, inBounds, inZones } from '../domain/court.ts';
+import { centreOf, inBounds, inZones, polygonsOf } from '../domain/court.ts';
 import { BASKET_SIZE } from './contracts.ts';
 import type { TrackerService } from './contracts.ts';
 
@@ -29,9 +29,9 @@ function drillSize(item: CartItem): number {
 }
 
 function sampleLanding(item: CartItem): { x: number; y: number } {
-  const circles = item.mode === 'targeted' ? circlesOf(item.zones ?? []) : [];
-  if (circles.length > 0) {
-    const centre = circles[Math.floor(Math.random() * circles.length)];
+  const shapes = item.mode === 'targeted' ? polygonsOf(item.zones ?? []) : [];
+  if (shapes.length > 0) {
+    const centre = centreOf(shapes[Math.floor(Math.random() * shapes.length)]);
     return {
       x: normal(centre.x, trackerConfig.targetedSigma),
       y: normal(centre.y, trackerConfig.targetedSigma),

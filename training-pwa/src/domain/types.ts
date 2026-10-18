@@ -14,7 +14,7 @@ export interface Cone {
   y: number;
 }
 
-/** A set of cones. Once it has enough cones, a circle is drawn around it and that circle is the target. */
+/** A set of cones. From 3 cones on they are joined into a shape, and that shape is the target. */
 export type Zone = Cone[];
 
 export type Amount = { kind: 'count'; n: number } | { kind: 'basket' };
