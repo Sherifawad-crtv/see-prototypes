@@ -8,19 +8,14 @@ export interface ShotType {
 
 export type Mode = 'free' | 'targeted';
 
-/** A rectangle on the opponent half. x runs left to right, y runs from the net (0) to the back wall (1). */
-export interface Area {
-  x0: number;
-  y0: number;
-  x1: number;
-  y1: number;
-}
-
-/** A cone placed on the opponent half, in the same 0–1 space as Area. */
+/** A cone on the opponent half. x runs left to right, y runs from the net (0) to the back wall (1). */
 export interface Cone {
   x: number;
   y: number;
 }
+
+/** A set of cones. Once it has enough cones, a circle is drawn around it and that circle is the target. */
+export type Zone = Cone[];
 
 export type Amount = { kind: 'count'; n: number } | { kind: 'basket' };
 
@@ -29,8 +24,7 @@ export interface CartItem {
   shotId: string;
   mode: Mode;
   amount: Amount;
-  targetArea?: Area;
-  cones?: Cone[];
+  zones?: Zone[];
   status: 'upcoming' | 'running' | 'done';
   detected: number;
 }

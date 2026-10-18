@@ -1,6 +1,6 @@
 import type { CartItem, ShotEvent } from '../domain/types.ts';
 import { getShot } from '../domain/catalog.ts';
-import { areaCentre, inArea, inBounds } from '../domain/court.ts';
+import { circlesOf, inBounds, inZones } from '../domain/court.ts';
 import { BASKET_SIZE } from './contracts.ts';
 import type { TrackerService } from './contracts.ts';
 
@@ -29,8 +29,9 @@ function drillSize(item: CartItem): number {
 }
 
 function sampleLanding(item: CartItem): { x: number; y: number } {
-  if (item.mode === 'targeted' && item.targetArea) {
-    const centre = areaCentre(item.targetArea);
+  const circles = item.mode === 'targeted' ? circlesOf(item.zones ?? []) : [];
+  if (circles.length > 0) {
+    const centre = circles[Math.floor(Math.random() * circles.length)];
     return {
       x: normal(centre.x, trackerConfig.targetedSigma),
       y: normal(centre.y, trackerConfig.targetedSigma),
@@ -113,7 +114,7 @@ export class MockTracker implements TrackerService {
         landing,
         inBounds: landed,
         ...(item.mode === 'targeted'
-          ? { hit: landed && item.targetArea !== undefined && inArea(item.targetArea, landing.x, landing.y) }
+          ? { hit: landed && inZones(item.zones ?? [], landing.x, landing.y) }
           : {}),
       };
       this.shotListeners.forEach((cb) => cb(event));

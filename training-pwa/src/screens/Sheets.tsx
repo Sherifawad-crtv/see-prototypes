@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { shotLabel } from '../domain/catalog.ts';
-import { areaLabel } from '../domain/court.ts';
+import { zonesLabel } from '../domain/court.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
 import { DEFAULT_COUNT, MAX_DRILLS } from '../store/reducer.ts';
 import { AmountControl } from '../ui/AmountControl.tsx';
@@ -41,12 +41,12 @@ function AmountSheet() {
           <Icon name="close" size={24} />
         </IconButton>
       </div>
-      {draft.mode === 'targeted' && draft.targetArea && (
+      {draft.mode === 'targeted' && draft.zones.length > 0 && (
         <div className="sheet-target">
-          <AreaThumb area={draft.targetArea} cones={draft.cones} />
+          <AreaThumb zones={draft.zones} />
           <div className="stack-4">
             <p className="t-overline-sm text-2">Aiming for</p>
-            <Chip accent>{areaLabel(draft.targetArea)}</Chip>
+            <Chip accent>{zonesLabel(draft.zones)}</Chip>
           </div>
           <Button variant="ghost" className="btn-sm" onClick={actions.changeTarget}>
             Change

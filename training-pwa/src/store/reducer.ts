@@ -1,13 +1,13 @@
 import type {
   Amount,
-  Area,
-  Cone,
+  Zone,
   CartItem,
   Mode,
   Session,
   SessionSummary,
   ShotEvent,
 } from '../domain/types.ts';
+import { zonesReady } from '../domain/court.ts';
 
 export const MAX_DRILLS = 20;
 export const MIN_AMOUNT = 1;
@@ -21,8 +21,7 @@ export type Sheet = null | 'amount' | 'endConfirm' | 'discard' | 'resume' | 'sav
 export interface Draft {
   mode: Mode;
   shotId: string | null;
-  targetArea: Area | null;
-  cones: Cone[];
+  zones: Zone[];
   amount: Amount;
 }
 
@@ -56,9 +55,8 @@ export type Action =
   | { type: 'session/new'; id: string; at: string }
   | { type: 'session/discard' }
   | { type: 'draft/mode'; mode: Mode }
-  | { type: 'draft/pick'; shotId: string; reuseArea: Area | null; reuseCones: Cone[] }
-  | { type: 'draft/area'; area: Area | null }
-  | { type: 'draft/cones'; cones: Cone[] }
+  | { type: 'draft/pick'; shotId: string; reuseZones: Zone[] }
+  | { type: 'draft/zones'; zones: Zone[] }
   | { type: 'draft/amount'; amount: Amount }
   | { type: 'cart/add'; id: string }
   | { type: 'cart/move'; id: string; dir: -1 | 1 }
@@ -83,8 +81,7 @@ export const initialState: State = {
   draft: {
     mode: 'free',
     shotId: null,
-    targetArea: null,
-    cones: [],
+    zones: [],
     amount: { kind: 'count', n: DEFAULT_COUNT },
   },
   lastCounts: {},
@@ -142,8 +139,7 @@ function copyOf(source: CartItem, id: string): CartItem {
     amount: source.amount,
     status: 'upcoming',
     detected: 0,
-    ...(source.targetArea ? { targetArea: source.targetArea } : {}),
-    ...(source.cones?.length ? { cones: source.cones } : {}),
+    ...(source.zones ? { zones: source.zones } : {}),
   };
 }
 
@@ -199,15 +195,12 @@ export function reducer(state: State, action: Action): State {
         draft: {
           ...state.draft,
           shotId: action.shotId,
-          targetArea: state.draft.mode === 'targeted' ? action.reuseArea : null,
-          cones: state.draft.mode === 'targeted' ? action.reuseCones : [],
+          zones: state.draft.mode === 'targeted' ? action.reuseZones : [],
           amount: { kind: 'count', n: DEFAULT_COUNT },
         },
       };
-    case 'draft/area':
-      return { ...state, draft: { ...state.draft, targetArea: action.area } };
-    case 'draft/cones':
-      return { ...state, draft: { ...state.draft, cones: action.cones } };
+    case 'draft/zones':
+      return { ...state, draft: { ...state.draft, zones: action.zones } };
     case 'draft/amount':
       return {
         ...state,
@@ -217,8 +210,8 @@ export function reducer(state: State, action: Action): State {
     case 'cart/add': {
       const { draft, session } = state;
       if (!session || !draft.shotId || session.cart.length >= MAX_DRILLS) return state;
-      if (draft.mode === 'targeted' && !draft.targetArea) return state;
-      const area = draft.mode === 'targeted' ? draft.targetArea : null;
+      if (draft.mode === 'targeted' && !zonesReady(draft.zones)) return state;
+      const zones = draft.mode === 'targeted' ? draft.zones.filter((zone) => zone.length > 0) : null;
       const item: CartItem = {
         id: action.id,
         shotId: draft.shotId,
@@ -226,22 +219,21 @@ export function reducer(state: State, action: Action): State {
         amount: draft.amount,
         status: 'upcoming',
         detected: 0,
-        ...(area ? { targetArea: area } : {}),
-        ...(area && draft.cones.length ? { cones: draft.cones } : {}),
+        ...(zones ? { zones } : {}),
       };
       const retargeted = session.cart.map((existing) =>
-        area &&
+        zones &&
         existing.status === 'upcoming' &&
         existing.mode === 'targeted' &&
         existing.shotId === draft.shotId
-          ? { ...existing, targetArea: area, cones: draft.cones }
+          ? { ...existing, zones }
           : existing,
       );
       return {
         ...state,
         sheet: null,
         session: { ...session, cart: [...retargeted, item] },
-        draft: { ...draft, shotId: null, targetArea: null, cones: [] },
+        draft: { ...draft, shotId: null, zones: [] },
       };
     }
     case 'cart/move':

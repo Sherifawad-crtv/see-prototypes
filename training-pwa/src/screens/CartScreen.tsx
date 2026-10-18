@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { shotLabel } from '../domain/catalog.ts';
 import type { CartItem } from '../domain/types.ts';
-import { areaLabel } from '../domain/court.ts';
+import { zonesLabel } from '../domain/court.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
 import { canMove, DEFAULT_COUNT, MAX_DRILLS } from '../store/reducer.ts';
 import { AmountControl } from '../ui/AmountControl.tsx';
@@ -73,12 +73,12 @@ function DrillCard({ item, index, cart }: { item: CartItem; index: number; cart:
           )}
         </div>
 
-        {item.mode === 'targeted' && item.targetArea && (
+        {item.mode === 'targeted' && item.zones && (
           <div className="drill-target">
-            <AreaThumb area={item.targetArea} cones={item.cones} />
+            <AreaThumb zones={item.zones} />
             <div>
               <p className="t-overline-sm text-2">Aiming for</p>
-              <p className="t-label">{areaLabel(item.targetArea)}</p>
+              <p className="t-label">{zonesLabel(item.zones)}</p>
             </div>
           </div>
         )}

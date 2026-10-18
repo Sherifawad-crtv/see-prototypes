@@ -1,5 +1,5 @@
 import { activity, onTarget, summarise, totals } from '../domain/stats.ts';
-import type { Area, Session } from '../domain/types.ts';
+import type { Session, Zone } from '../domain/types.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
 import { ColorBlock, Gauge, Panel, Tile } from '../ui/blocks.tsx';
 import { Button } from '../ui/controls.tsx';
@@ -28,13 +28,9 @@ function ResultsBody({ session }: { session: Session }) {
     hit: shot.hit,
   }));
 
-  const areas: Area[] = session.cart
-    .filter((item) => item.targetArea && session.shots.some((shot) => shot.cartItemId === item.id))
-    .map((item) => item.targetArea as Area);
-
-  const cones = session.cart
+  const zones: Zone[] = session.cart
     .filter((item) => session.shots.some((shot) => shot.cartItemId === item.id))
-    .flatMap((item) => item.cones ?? []);
+    .flatMap((item) => item.zones ?? []);
 
   return (
     <>
@@ -81,7 +77,7 @@ function ResultsBody({ session }: { session: Session }) {
 
           <Panel icon="my_location" title="Shot Placement" subtitle="Where your shots landed on court">
             <div className="court-stage">
-              <Court mode="results" view="full" dots={dots} areas={areas} cones={cones} />
+              <Court mode="results" view="full" dots={dots} zones={zones} />
             </div>
             {sums.targeted > 0 && (
               <div className="court-legend t-caption">

@@ -1,7 +1,7 @@
 import { useRef, useState, type PointerEvent } from 'react';
 import { shotLabel } from '../domain/catalog.ts';
-import { areaAround, areaFrom, areaLabel, clamp01, MIN_AREA } from '../domain/court.ts';
-import type { Area, Cone } from '../domain/types.ts';
+import { circlesOf, clamp01, isComplete, MAX_CONES_PER_ZONE } from '../domain/court.ts';
+import type { Zone } from '../domain/types.ts';
 import { Tooltip } from './controls.tsx';
 
 export interface CourtDot {
@@ -17,23 +17,14 @@ interface CourtProps {
   mode: 'select' | 'results';
   view: 'half' | 'full';
   dots?: CourtDot[];
-  areas?: Area[];
-  area?: Area | null;
-  onAreaChange?: (area: Area) => void;
-  tool?: 'frame' | 'cones';
-  cones?: Cone[];
-  onConesChange?: (cones: Cone[]) => void;
+  zones?: Zone[];
+  /** Select mode: the zone new cones go into. */
+  activeZone?: number;
+  onZonesChange?: (zones: Zone[]) => void;
 }
 
 type Point = { x: number; y: number };
-type Handle = 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w';
-type Drag =
-  | { kind: 'draw'; anchor: Point; moved: boolean }
-  | { kind: 'move'; start: Point; origin: Area }
-  | { kind: 'resize'; handle: Handle; origin: Area }
-  | { kind: 'cone'; index: number | null; at: Point };
 
-export const MAX_CONES = 8;
 const PAD = 2;
 const COURT_W = 100;
 const COURT_H = 200;
@@ -41,20 +32,6 @@ const NET_Y = 100;
 const BAND = 30.5;
 const DOT_R = 1.55;
 const DOT_HIT_R = 4.5;
-const HANDLE = 3.4;
-const HANDLE_HIT = 6;
-const DRAW_THRESHOLD = 0.03;
-
-const HANDLES: { id: Handle; fx: number; fy: number }[] = [
-  { id: 'nw', fx: 0, fy: 0 },
-  { id: 'n', fx: 0.5, fy: 0 },
-  { id: 'ne', fx: 1, fy: 0 },
-  { id: 'e', fx: 1, fy: 0.5 },
-  { id: 'se', fx: 1, fy: 1 },
-  { id: 's', fx: 0.5, fy: 1 },
-  { id: 'sw', fx: 0, fy: 1 },
-  { id: 'w', fx: 0, fy: 0.5 },
-];
 
 function viewBoxOf(view: 'half' | 'full') {
   const height = view === 'full' ? COURT_H : NET_Y;
@@ -65,52 +42,23 @@ function dotPosition(dot: CourtDot) {
   return { x: clamp01(dot.x) * COURT_W, y: NET_Y - clamp01(dot.y) * NET_Y };
 }
 
-function rectOf(area: Area) {
-  return {
-    x: area.x0 * COURT_W,
-    y: NET_Y - area.y1 * NET_Y,
-    width: (area.x1 - area.x0) * COURT_W,
-    height: (area.y1 - area.y0) * NET_Y,
-  };
-}
-
 function dotState(dot: CourtDot): 'out' | 'hit' | 'miss' | 'free' {
   if (!dot.inBounds) return 'out';
   if (dot.hit === undefined) return 'free';
   return dot.hit ? 'hit' : 'miss';
 }
 
-function resized(origin: Area, handle: Handle, point: Point): Area {
-  let { x0, y0, x1, y1 } = origin;
-  if (handle.includes('w')) x0 = Math.min(point.x, x1 - MIN_AREA);
-  if (handle.includes('e')) x1 = Math.max(point.x, x0 + MIN_AREA);
-  if (handle === 'n' || handle === 'nw' || handle === 'ne') y1 = Math.max(point.y, y0 + MIN_AREA);
-  if (handle === 's' || handle === 'sw' || handle === 'se') y0 = Math.min(point.y, y1 - MIN_AREA);
-  return { x0, y0, x1, y1 };
-}
-
-function moved(origin: Area, dx: number, dy: number): Area {
-  const w = origin.x1 - origin.x0;
-  const h = origin.y1 - origin.y0;
-  const x0 = Math.min(1 - w, Math.max(0, origin.x0 + dx));
-  const y0 = Math.min(1 - h, Math.max(0, origin.y0 + dy));
-  return { x0, y0, x1: x0 + w, y1: y0 + h };
-}
-
 export function Court({
   mode,
   view,
   dots = [],
-  areas = [],
-  area = null,
-  onAreaChange,
-  tool = 'frame',
-  cones = [],
-  onConesChange,
+  zones = [],
+  activeZone = 0,
+  onZonesChange,
 }: CourtProps) {
   const box = viewBoxOf(view);
   const svgRef = useRef<SVGSVGElement>(null);
-  const drag = useRef<Drag | null>(null);
+  const press = useRef<{ zone: number; cone: number } | { at: Point } | null>(null);
   const [activeDot, setActiveDot] = useState<string | null>(null);
   const active = dots.find((dot) => dot.id === activeDot);
   const pct = (value: number, origin: number, size: number) => ((value - origin) / size) * 100;
@@ -125,45 +73,24 @@ export function Court({
 
   const onPointerDown = (event: PointerEvent<SVGSVGElement>) => {
     if (!selecting) return;
-    const point = toCourt(event);
-    if (tool === 'cones') {
-      const hit = (event.target as Element).closest('[data-cone]')?.getAttribute('data-cone');
-      drag.current = { kind: 'cone', index: hit === null || hit === undefined ? null : Number(hit), at: point };
-      return;
-    }
-    const handle = (event.target as Element).closest('[data-handle]')?.getAttribute('data-handle') as Handle | null;
-    if (area && handle) drag.current = { kind: 'resize', handle, origin: area };
-    else if (area && point.x >= area.x0 && point.x <= area.x1 && point.y >= area.y0 && point.y <= area.y1) {
-      drag.current = { kind: 'move', start: point, origin: area };
-    } else drag.current = { kind: 'draw', anchor: point, moved: false };
-    event.currentTarget.setPointerCapture(event.pointerId);
+    const hit = (event.target as Element).closest('[data-cone]')?.getAttribute('data-cone');
+    if (hit) {
+      const [zone, cone] = hit.split('-').map(Number);
+      press.current = { zone, cone };
+    } else press.current = { at: toCourt(event) };
   };
 
-  const onPointerMove = (event: PointerEvent<SVGSVGElement>) => {
-    const current = drag.current;
-    if (!current || current.kind === 'cone' || !onAreaChange) return;
-    const point = toCourt(event);
-    if (current.kind === 'draw') {
-      if (Math.hypot(point.x - current.anchor.x, point.y - current.anchor.y) < DRAW_THRESHOLD) return;
-      current.moved = true;
-      const next = areaFrom(current.anchor, point);
-      if (next.x1 - next.x0 >= MIN_AREA && next.y1 - next.y0 >= MIN_AREA) onAreaChange(next);
-    } else if (current.kind === 'move') {
-      onAreaChange(moved(current.origin, point.x - current.start.x, point.y - current.start.y));
-    } else {
-      onAreaChange(resized(current.origin, current.handle, point));
-    }
-  };
-
-  const onPointerUp = (event: PointerEvent<SVGSVGElement>) => {
-    const current = drag.current;
-    drag.current = null;
-    if (current?.kind === 'cone') {
-      if (current.index !== null) onConesChange?.(cones.filter((_, i) => i !== current.index));
-      else if (cones.length < MAX_CONES) onConesChange?.([...cones, current.at]);
+  const onPointerUp = () => {
+    const current = press.current;
+    press.current = null;
+    if (!current || !onZonesChange) return;
+    if ('cone' in current) {
+      onZonesChange(zones.map((zone, zi) => (zi === current.zone ? zone.filter((_, ci) => ci !== current.cone) : zone)));
       return;
     }
-    if (current?.kind === 'draw' && !current.moved) onAreaChange?.(areaAround(toCourt(event)));
+    const target = zones[activeZone];
+    if (!target || target.length >= MAX_CONES_PER_ZONE) return;
+    onZonesChange(zones.map((zone, zi) => (zi === activeZone ? [...zone, current.at] : zone)));
   };
 
   const tooltipText = (dot: CourtDot) => {
@@ -173,22 +100,21 @@ export function Court({
     return `${shotLabel(dot.shotId)} · ${result}`;
   };
 
-  const editRect = area ? rectOf(area) : null;
+  const circles = zones.map((zone) => (isComplete(zone) ? circlesOf([zone])[0] : null));
 
   return (
     <div className="court">
       <svg
         ref={svgRef}
-        className={`court-svg${selecting ? ' court-draw' : ''}${tool === 'cones' ? ' court-cones' : ''}`}
+        className={`court-svg${selecting ? ' court-draw' : ''}`}
         viewBox={`${box.x} ${box.y} ${box.w} ${box.h}`}
         role="img"
-        aria-label={selecting ? (tool === 'cones' ? 'Padel court. Tap to place or remove cones' : 'Padel court. Drag to draw your target area') : 'Padel court, opponent half at the top'}
+        aria-label={selecting ? 'Padel court. Tap to place a cone, tap a cone to remove it' : 'Padel court, opponent half at the top'}
         onClick={() => setActiveDot(null)}
         onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={() => {
-          drag.current = null;
+          press.current = null;
         }}
       >
         <rect x={0} y={0} width={COURT_W} height={view === 'full' ? COURT_H : NET_Y} className="court-fill" />
@@ -214,37 +140,37 @@ export function Court({
         <circle cx={0} cy={NET_Y} r={1.6} className="court-post" />
         <circle cx={COURT_W} cy={NET_Y} r={1.6} className="court-post" />
 
-        {areas.map((outline, index) => (
-          <rect key={index} {...rectOf(outline)} className="area area-outline" pointerEvents="none" />
-        ))}
+        {circles.map((c, index) =>
+          c ? (
+            <circle
+              key={index}
+              cx={c.x * COURT_W}
+              cy={NET_Y - c.y * NET_Y}
+              r={c.r * COURT_W}
+              className={`zone-circle${selecting && index === activeZone ? ' zone-circle-active' : ''}`}
+              pointerEvents="none"
+            />
+          ) : null,
+        )}
 
-        {cones.map((cone, index) => {
-          const cx = cone.x * COURT_W;
-          const cy = NET_Y - cone.y * NET_Y;
-          return (
-            <g key={index} data-cone={index} className="cone" role="img" aria-label="Cone">
-              <circle cx={cx} cy={cy} r={5.5} className="cone-hit" />
-              <ellipse cx={cx} cy={cy + 1.8} rx={2.8} ry={1.1} className="cone-base" />
-              <path d={`M${cx} ${cy - 3} L${cx + 2.3} ${cy + 1.8} L${cx - 2.3} ${cy + 1.8} Z`} className="cone-body" />
-            </g>
-          );
-        })}
-
-        {selecting && editRect && (
-          <g className={tool === 'cones' ? 'frame-locked' : undefined}>
-            <rect {...editRect} className="area area-edit" />
-            {tool === 'frame' && HANDLES.map((handle) => (
+        {zones.map((zone, zi) =>
+          zone.map((cone, ci) => {
+            const cx = cone.x * COURT_W;
+            const cy = NET_Y - cone.y * NET_Y;
+            return (
               <g
-                key={handle.id}
-                data-handle={handle.id}
-                className={`handle handle-${handle.id}`}
-                transform={`translate(${editRect.x + editRect.width * handle.fx} ${editRect.y + editRect.height * handle.fy})`}
+                key={`${zi}-${ci}`}
+                data-cone={selecting ? `${zi}-${ci}` : undefined}
+                className={`cone${selecting && zi !== activeZone ? ' cone-idle' : ''}`}
+                role="img"
+                aria-label="Cone"
               >
-                <rect x={-HANDLE_HIT} y={-HANDLE_HIT} width={HANDLE_HIT * 2} height={HANDLE_HIT * 2} className="handle-hit" />
-                <rect x={-HANDLE / 2} y={-HANDLE / 2} width={HANDLE} height={HANDLE} className="handle-box" />
+                <circle cx={cx} cy={cy} r={5.5} className="cone-hit" />
+                <ellipse cx={cx} cy={cy + 1.8} rx={2.8} ry={1.1} className="cone-base" />
+                <path d={`M${cx} ${cy - 3} L${cx + 2.3} ${cy + 1.8} L${cx - 2.3} ${cy + 1.8} Z`} className="cone-body" />
               </g>
-            ))}
-          </g>
+            );
+          }),
         )}
       </svg>
 
@@ -257,18 +183,6 @@ export function Court({
           style={{ top: `${pct(COURT_H - BAND / 2, box.y, box.h)}%` }}
         >
           YOU
-        </span>
-      )}
-
-      {selecting && area && editRect && (
-        <span
-          className="area-size t-label-xs"
-          style={{
-            left: `${pct(editRect.x + editRect.width / 2, box.x, box.w)}%`,
-            top: `${pct(editRect.y + editRect.height, box.y, box.h)}%`,
-          }}
-        >
-          {areaLabel(area)}
         </span>
       )}
 

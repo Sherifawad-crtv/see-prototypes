@@ -481,22 +481,14 @@ button.chip::after { content: ''; position: absolute; inset: -4px 0; }
 
 /* Court drawing */
 .court-draw { touch-action: none; cursor: crosshair; user-select: none; }
-.area { vector-effect: non-scaling-stroke; }
-.area-edit { fill: var(--accent-strong); fill-opacity: 0.28; stroke: var(--accent-strong); stroke-width: 2px; cursor: move; }
-.area-outline { fill: none; stroke: var(--neutral-0); stroke-opacity: 0.7; stroke-width: 2px; stroke-dasharray: 5 4; }
-.handle-hit { fill: transparent; }
-.handle-box { fill: var(--neutral-0); stroke: var(--accent-strong); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
-.handle-nw, .handle-se { cursor: nwse-resize; }
-.handle-ne, .handle-sw { cursor: nesw-resize; }
-.handle-n, .handle-s { cursor: ns-resize; }
-.handle-e, .handle-w { cursor: ew-resize; }
-.area-size { position: absolute; transform: translate(-50%, var(--s-8)); padding: var(--s-2) var(--s-8); border-radius: var(--r-sm); background: var(--accent-strong); color: var(--neutral-0); white-space: nowrap; pointer-events: none; }
 
 .cone { cursor: pointer; }
 .cone-hit { fill: transparent; }
 .cone-body { fill: var(--accent-strong); stroke: var(--neutral-0); stroke-width: 1.2px; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 .cone-base { fill: var(--neutral-0); stroke: var(--accent-strong); stroke-width: 1px; vector-effect: non-scaling-stroke; }
-.court-cones { cursor: copy; }
-.frame-locked { pointer-events: none; opacity: 0.55; }
 .thumb-cone { fill: var(--neutral-0); stroke: var(--accent-strong); stroke-width: 3px; }
 .tool-actions { display: flex; justify-content: center; }
+.zone-circle { fill: var(--accent-strong); fill-opacity: 0.2; stroke: var(--accent-strong); stroke-width: 2px; vector-effect: non-scaling-stroke; }
+.zone-circle-active { fill-opacity: 0.3; }
+.cone-idle { opacity: 0.7; }
+.zone-chips { display: flex; flex-wrap: wrap; gap: var(--s-8); justify-content: center; }

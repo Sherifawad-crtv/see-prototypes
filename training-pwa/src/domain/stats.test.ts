@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { activity, onTarget, summarise, totals } from './stats.ts';
-import type { Area, CartItem, Session, ShotEvent } from './types.ts';
+import type { CartItem, Zone, Session, ShotEvent } from './types.ts';
 
 const T0 = '2026-01-01T10:00:00.000Z';
 
-const AREA: Area = { x0: 0.5, y0: 0.7, x1: 1, y1: 1 };
+const ZONES: Zone[] = [[{ x: 0.6, y: 0.7 }, { x: 0.9, y: 0.7 }, { x: 0.6, y: 0.95 }, { x: 0.9, y: 0.95 }]];
 
-function item(id: string, shotId: string, mode: 'free' | 'targeted', area?: Area): CartItem {
+function item(id: string, shotId: string, mode: 'free' | 'targeted', zones?: Zone[]): CartItem {
   return {
     id,
     shotId,
@@ -15,7 +15,7 @@ function item(id: string, shotId: string, mode: 'free' | 'targeted', area?: Area
     amount: { kind: 'count', n: 10 },
     status: 'done',
     detected: 0,
-    ...(area ? { targetArea: area } : {}),
+    ...(zones ? { zones } : {}),
   };
 }
 
@@ -59,7 +59,7 @@ describe('totals', () => {
 
   it('splits shots by mode', () => {
     const s = session(
-      [item('a', 'lob', 'free'), item('b', 'overhead', 'targeted', AREA)],
+      [item('a', 'lob', 'free'), item('b', 'overhead', 'targeted', ZONES)],
       [shot('a', 'lob', 0.5, 0.5), shot('a', 'lob', 0.4, 0.5), shot('b', 'overhead', 0.8, 0.8, true)],
     );
     assert.deepEqual(totals(s), { total: 3, free: 2, targeted: 1 });
@@ -73,7 +73,7 @@ describe('onTarget', () => {
 
   it('counts only out-of-bounds shots as misses', () => {
     const s = session(
-      [item('a', 'overhead', 'targeted', AREA)],
+      [item('a', 'overhead', 'targeted', ZONES)],
       [shot('a', 'overhead', 1.2, 0.8, false), shot('a', 'overhead', 0.9, 1.3, false)],
     );
     const result = onTarget(s);
@@ -88,8 +88,8 @@ describe('onTarget', () => {
   it('computes hits per shot type and overall', () => {
     const s = session(
       [
-        item('a', 'overhead', 'targeted', AREA),
-        item('b', 'lob', 'targeted', AREA),
+        item('a', 'overhead', 'targeted', ZONES),
+        item('b', 'lob', 'targeted', ZONES),
         item('c', 'serve', 'free'),
       ],
       [
@@ -127,7 +127,7 @@ describe('summarise', () => {
 
   it('includes duration, distinct shots and on-target percentage', () => {
     const s = session(
-      [item('a', 'lob', 'free'), item('b', 'overhead', 'targeted', AREA)],
+      [item('a', 'lob', 'free'), item('b', 'overhead', 'targeted', ZONES)],
       [
         shot('a', 'lob', 0.5, 0.5),
         shot('a', 'lob', 0.5, 0.5),
