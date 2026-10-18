@@ -5,7 +5,7 @@ export const SHOTS: ShotType[] = [
   { id: 'groundstroke', label: 'Groundstroke', depth: 'mid' },
   { id: 'volley', label: 'Volley', depth: 'front' },
   { id: 'overhead', label: 'Overhead', depth: 'back' },
-  { id: 'lob', label: 'Lob', alias: 'Globo', depth: 'back' },
+  { id: 'lob', label: 'Lob', depth: 'back' },
 ];
 
 const BY_ID = new Map(SHOTS.map((s) => [s.id, s]));

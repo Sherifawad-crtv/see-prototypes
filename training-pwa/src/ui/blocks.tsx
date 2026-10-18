@@ -79,32 +79,6 @@ export function ColorBlock({ tone, label, value, unit, shape, icon, wide = false
   );
 }
 
-interface OptionCardProps {
-  icon: IconName;
-  title: string;
-  subtitle: string;
-  action: IconName;
-  onClick: () => void;
-  tone?: 'blue' | 'orange';
-}
-
-export function OptionCard({ icon, title, subtitle, action, onClick, tone = 'blue' }: OptionCardProps) {
-  return (
-    <button type="button" className="option" onClick={onClick}>
-      <span className={`option-icon option-icon-${tone}`}>
-        <Icon name={icon} size={30} />
-      </span>
-      <span className="option-text">
-        <span className="t-h4">{title}</span>
-        <span className="t-body text-sub">{subtitle}</span>
-      </span>
-      <span className={`option-action option-action-${tone}`}>
-        <Icon name={action} size={22} />
-      </span>
-    </button>
-  );
-}
-
 interface PanelProps {
   icon: IconName;
   title: string;

@@ -4,7 +4,6 @@ import { getZone } from '../domain/zones.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
 import { DEFAULT_COUNT, MAX_DRILLS } from '../store/reducer.ts';
 import { AmountControl } from '../ui/AmountControl.tsx';
-import { OptionCard } from '../ui/blocks.tsx';
 import { Button, Chip, IconButton } from '../ui/controls.tsx';
 import { Icon } from '../ui/icons.tsx';
 import { Sheet } from '../ui/Sheet.tsx';
@@ -67,81 +66,64 @@ function AmountSheet() {
   );
 }
 
+interface ConfirmProps {
+  title: string;
+  text: string;
+  secondary: { label: string; onClick: () => void };
+  primary: { label: string; onClick: () => void };
+  onClose?: () => void;
+}
+
+function ConfirmSheet({ title, text, secondary, primary, onClose }: ConfirmProps) {
+  return (
+    <Sheet title={title} onClose={onClose}>
+      <SheetTitle title={title} onClose={onClose} />
+      <p className="t-body text-2 confirm-text">{text}</p>
+      <div className="confirm-actions">
+        <Button variant="secondary" onClick={secondary.onClick}>
+          {secondary.label}
+        </Button>
+        <Button onClick={primary.onClick}>{primary.label}</Button>
+      </div>
+    </Sheet>
+  );
+}
+
 function EndConfirmSheet() {
   const { actions } = useTraining();
   return (
-    <Sheet title="End session?" onClose={actions.closeSheet}>
-      <SheetTitle title="End session?" onClose={actions.closeSheet} />
-      <div className="stack-12">
-        <OptionCard
-          icon="stop"
-          title="End and see results"
-          subtitle="Upcoming drills will be skipped. Shots so far are saved."
-          action="check"
-          tone="orange"
-          onClick={actions.endSession}
-        />
-        <OptionCard
-          icon="play_arrow"
-          title="Keep training"
-          subtitle="Go back to your drill"
-          action="arrow_forward"
-          onClick={actions.closeSheet}
-        />
-      </div>
-    </Sheet>
+    <ConfirmSheet
+      title="End session?"
+      text="Upcoming drills will be skipped. Shots so far are saved."
+      secondary={{ label: 'Keep training', onClick: actions.closeSheet }}
+      primary={{ label: 'End and see results', onClick: actions.endSession }}
+      onClose={actions.closeSheet}
+    />
   );
 }
 
 function DiscardSheet() {
   const { actions } = useTraining();
   return (
-    <Sheet title="Discard this list?" onClose={actions.closeSheet}>
-      <SheetTitle title="Discard this list?" onClose={actions.closeSheet} />
-      <div className="stack-12">
-        <OptionCard
-          icon="delete"
-          title="Discard"
-          subtitle="The drills you added will be removed."
-          action="check"
-          tone="orange"
-          onClick={actions.discardCart}
-        />
-        <OptionCard
-          icon="sports_tennis"
-          title="Keep editing"
-          subtitle="Back to your shot list"
-          action="arrow_forward"
-          onClick={actions.closeSheet}
-        />
-      </div>
-    </Sheet>
+    <ConfirmSheet
+      title="Discard this list?"
+      text="The drills you added will be removed."
+      secondary={{ label: 'Keep editing', onClick: actions.closeSheet }}
+      primary={{ label: 'Discard', onClick: actions.discardCart }}
+      onClose={actions.closeSheet}
+    />
   );
 }
 
 function ResumeSheet() {
   const { actions } = useTraining();
   return (
-    <Sheet title="Unfinished session">
-      <SheetTitle title="Pick up where you left off?" />
-      <div className="stack-12">
-        <OptionCard
-          icon="play_arrow"
-          title="Resume session"
-          subtitle="Continue your unfinished training"
-          action="arrow_forward"
-          onClick={actions.resumeSession}
-        />
-        <OptionCard
-          icon="stop"
-          title="End and see results"
-          subtitle="Save the shots so far"
-          action="check"
-          tone="orange"
-          onClick={actions.endResumed}
-        />
-      </div>
-    </Sheet>
+    <ConfirmSheet
+      title="Pick up where you left off?"
+      text="You have a training session that was not finished."
+      secondary={{ label: 'End and see results', onClick: actions.endResumed }}
+      primary={{ label: 'Resume session', onClick: actions.resumeSession }}
+    />
   );
 }
 

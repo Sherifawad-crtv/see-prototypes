@@ -3,7 +3,6 @@ export type Depth = 'front' | 'mid' | 'back';
 export interface ShotType {
   id: string;
   label: string;
-  alias?: string;
   depth: Depth;
 }
 

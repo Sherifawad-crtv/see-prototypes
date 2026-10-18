@@ -55,10 +55,7 @@ export function AddShotScreen() {
                 className={`shot-row${selected ? ' shot-row-on' : ''}`}
                 onClick={() => actions.pickShot(shot.id)}
               >
-                <span className="shot-row-name">
-                  <span className="t-label-lg">{shot.label}</span>
-                  {shot.alias && <span className="t-body-sm text-3">{shot.alias}</span>}
-                </span>
+                <span className="shot-row-name t-label-lg">{shot.label}</span>
                 {inList > 0 && <span className="count-badge t-caption-b">{inList}</span>}
                 <Icon name="chevron_right" size={28} />
               </button>
