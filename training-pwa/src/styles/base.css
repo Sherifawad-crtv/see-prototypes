@@ -481,7 +481,6 @@ button.chip::after { content: ''; position: absolute; inset: -4px 0; }
 
 /* Court drawing */
 .court-draw { touch-action: none; cursor: crosshair; user-select: none; }
-.court-fit { width: min(100%, calc((100dvh - 330px) / 1.96)); margin: 0 auto; }
 .area { vector-effect: non-scaling-stroke; }
 .area-edit { fill: var(--accent-strong); fill-opacity: 0.28; stroke: var(--accent-strong); stroke-width: 2px; cursor: move; }
 .area-outline { fill: none; stroke: var(--neutral-0); stroke-opacity: 0.7; stroke-width: 2px; stroke-dasharray: 5 4; }

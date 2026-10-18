@@ -20,9 +20,7 @@ export function TargetScreen() {
       />
       <div className="screen-body">
         <div className="court-stage">
-          <div className="court-fit">
-            <Court mode="select" view="full" area={draft.targetArea} onAreaChange={actions.setArea} />
-          </div>
+          <Court mode="select" view="half" area={draft.targetArea} onAreaChange={actions.setArea} />
         </div>
         <p className="t-caption text-2 center" aria-live="polite">
           {draft.targetArea
