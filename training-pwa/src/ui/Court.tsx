@@ -12,7 +12,6 @@ export interface CourtDot {
   y: number;
   inBounds: boolean;
   hit?: boolean;
-  latest?: boolean;
 }
 
 export interface CourtZone {
@@ -21,7 +20,7 @@ export interface CourtZone {
 }
 
 interface CourtProps {
-  mode: 'select' | 'live' | 'results';
+  mode: 'select' | 'results';
   view: 'half' | 'full';
   dots?: CourtDot[];
   zones?: CourtZone[];
@@ -201,7 +200,7 @@ export function Court({
           return (
             <g
               key={dot.id}
-              className={`dot dot-${state}${mode === 'live' ? ' dot-drop' : ''}`}
+              className={`dot dot-${state}`}
               role="button"
               tabIndex={mode === 'results' ? 0 : -1}
               aria-label={tooltipText(dot)}
@@ -216,7 +215,6 @@ export function Court({
                 }
               }}
             >
-              {dot.latest && <circle cx={x} cy={y} r={DOT_R * 2.2} className="dot-pulse" />}
               {state === 'out' ? (
                 <circle cx={x} cy={y} r={DOT_R * 1.2} className="dot-ring" />
               ) : (

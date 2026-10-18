@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import { shotLabel } from '../domain/catalog.ts';
-import type { Amount, CartItem, Mode, Session, ZoneId } from '../domain/types.ts';
+import type { Amount, Mode, Session, ZoneId } from '../domain/types.ts';
 import { repository, tracker } from '../services/index.ts';
 import {
   finalizeSession,
@@ -55,6 +55,14 @@ function createActions(
     await refreshHistory();
   };
 
+  const requestEnd = () => {
+    const { session } = getState();
+    if (!session) return;
+    const active = session.cart.some((item) => item.status !== 'done');
+    if (active) dispatch({ type: 'sheet', sheet: 'endConfirm' });
+    else endSession();
+  };
+
   const endSession = () => {
     const { session } = getState();
     if (!session) return;
@@ -84,7 +92,7 @@ function createActions(
     },
     cartBack() {
       const { session } = getState();
-      if (session?.phase !== 'building') return nav.back();
+      if (session?.phase !== 'building') return requestEnd();
       if (session.cart.length > 0) return dispatch({ type: 'sheet', sheet: 'discard' });
       dispatch({ type: 'session/discard' });
       nav.leave();
@@ -161,35 +169,8 @@ function createActions(
       const { session } = getState();
       if (!session) return;
       dispatch({ type: 'session/start', at: now() });
-      if (session.phase === 'building') nav.replace('live');
-      else nav.popTo('live');
     },
-    trainAnother() {
-      dispatch({ type: 'session/pause' });
-      nav.push('cart');
-    },
-    redoLive() {
-      const { session } = getState();
-      if (!session) return;
-      if (session.cart.length >= MAX_DRILLS) {
-        dispatch({ type: 'toast', text: 'List is full' });
-        return;
-      }
-      const source: CartItem | undefined = runningItem(session) ?? session.cart.at(-1);
-      if (!source) return;
-      dispatch({ type: 'live/redo', newId: uid() });
-      dispatch({
-        type: 'toast',
-        text: `Added ${shotLabel(source.shotId)} ${amountText(source.amount)} to your list`,
-      });
-    },
-    requestEnd() {
-      const { session } = getState();
-      if (!session) return;
-      const active = session.cart.some((item) => item.status !== 'done');
-      if (active) dispatch({ type: 'sheet', sheet: 'endConfirm' });
-      else endSession();
-    },
+    requestEnd,
     endSession,
     resumeSession() {
       const { resumeCandidate } = getState();
@@ -201,7 +182,7 @@ function createActions(
             ? { ...resumeCandidate, phase: 'running' }
             : resumeCandidate,
       });
-      nav.push('live');
+      nav.push('cart');
     },
     endResumed() {
       const { resumeCandidate } = getState();
@@ -292,29 +273,18 @@ export function TrainingProvider({ children }: { children: ReactNode }) {
       trackedItem.current = null;
       return;
     }
-    if (phase === 'paused') {
-      tracker.pause();
-    } else if (phase === 'running') {
-      if (trackedItem.current !== running.id) {
-        tracker.start(running);
-        trackedItem.current = running.id;
-      } else {
-        tracker.resume();
-      }
+    if (phase === 'running' && trackedItem.current !== running.id) {
+      tracker.start(running);
+      trackedItem.current = running.id;
     }
   }, [running?.id, phase]);
 
   useEffect(() => {
     const { session } = state;
-    if (session && (session.phase === 'running' || session.phase === 'paused' || session.phase === 'idle')) {
+    if (session && (session.phase === 'running' || session.phase === 'idle')) {
       void repository.saveInProgress(session);
     }
   }, [state.session]);
-
-  const top = state.stack.at(-1);
-  useEffect(() => {
-    if (top === 'live' && phase === 'paused') dispatch({ type: 'session/resume' });
-  }, [top, phase]);
 
   useEffect(() => {
     const onPop = (event: PopStateEvent) => {
@@ -324,7 +294,8 @@ export function TrainingProvider({ children }: { children: ReactNode }) {
       const bypass = bypassGuard.current;
       bypassGuard.current = false;
       if (!bypass && index < depth.current) {
-        if (screen === 'live') {
+        const started = current.session?.phase === 'running' || current.session?.phase === 'idle';
+        if (screen === 'cart' && started) {
           history.pushState({ i: depth.current }, '');
           dispatch({ type: 'sheet', sheet: 'endConfirm' });
           return;

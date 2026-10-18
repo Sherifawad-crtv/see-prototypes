@@ -14,7 +14,7 @@ export const MAX_AMOUNT = 50;
 export const DEFAULT_COUNT = 10;
 export const DRAFT_KEY = 'draft';
 
-export type Screen = 'training' | 'cart' | 'add' | 'target' | 'live' | 'results';
+export type Screen = 'training' | 'cart' | 'add' | 'target' | 'results';
 export type Sheet = null | 'amount' | 'endConfirm' | 'discard' | 'resume' | 'saved';
 
 export interface Draft {
@@ -63,9 +63,6 @@ export type Action =
   | { type: 'cart/redo'; id: string; newId: string }
   | { type: 'cart/amount'; id: string; amount: Amount }
   | { type: 'session/start'; at: string }
-  | { type: 'session/pause' }
-  | { type: 'session/resume' }
-  | { type: 'live/redo'; newId: string }
   | { type: 'shot'; event: ShotEvent }
   | { type: 'drill/complete'; id: string }
   | { type: 'session/ended'; session: Session }
@@ -277,38 +274,12 @@ export function reducer(state: State, action: Action): State {
     }
     case 'session/start':
       return updateSession(state, (session) => {
-        if (session.phase === 'paused') return { ...session, phase: 'running' };
         if (!session.cart.some((item) => item.status === 'upcoming')) return session;
         return {
           ...session,
           startedAt: session.phase === 'building' ? action.at : session.startedAt,
           phase: 'running',
           cart: promoteNext(session.cart),
-        };
-      });
-    case 'session/pause':
-      return updateSession(state, (session) =>
-        session.phase === 'running' ? { ...session, phase: 'paused' } : session,
-      );
-    case 'session/resume':
-      return updateSession(state, (session) =>
-        session.phase === 'paused' ? { ...session, phase: 'running' } : session,
-      );
-    case 'live/redo':
-      return updateSession(state, (session) => {
-        if (session.cart.length >= MAX_DRILLS) return session;
-        const running = session.cart.findIndex((item) => item.status === 'running');
-        if (running >= 0) {
-          const cart = [...session.cart];
-          cart.splice(running + 1, 0, copyOf(session.cart[running]!, action.newId));
-          return { ...session, cart };
-        }
-        const last = session.cart.at(-1);
-        if (!last) return session;
-        return {
-          ...session,
-          phase: 'running',
-          cart: promoteNext([...session.cart, copyOf(last, action.newId)]),
         };
       });
     case 'shot':

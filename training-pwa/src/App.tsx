@@ -1,7 +1,6 @@
 import { DevPanel } from './DevPanel.tsx';
 import { AddShotScreen } from './screens/AddShotScreen.tsx';
 import { CartScreen } from './screens/CartScreen.tsx';
-import { LiveScreen } from './screens/LiveScreen.tsx';
 import { ResultsScreen } from './screens/ResultsScreen.tsx';
 import { Sheets } from './screens/Sheets.tsx';
 import { TargetScreen } from './screens/TargetScreen.tsx';
@@ -16,7 +15,6 @@ const SCREENS: Record<Screen, () => React.JSX.Element | null> = {
   cart: CartScreen,
   add: AddShotScreen,
   target: TargetScreen,
-  live: LiveScreen,
   results: ResultsScreen,
 };
 

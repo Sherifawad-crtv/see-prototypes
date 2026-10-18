@@ -5,11 +5,52 @@ import { getZone } from '../domain/zones.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
 import { canMove, DEFAULT_COUNT, MAX_DRILLS } from '../store/reducer.ts';
 import { AmountControl } from '../ui/AmountControl.tsx';
-import { Badge, Button, IconButton } from '../ui/controls.tsx';
-import { amountLabel, modeBadgeText, plural } from '../ui/format.ts';
+import { Badge, Button, IconButton, ProgressBar } from '../ui/controls.tsx';
+import { modeBadgeText, plural } from '../ui/format.ts';
 import { Icon } from '../ui/icons.tsx';
 import { PageHeader } from '../ui/PageHeader.tsx';
 import { ZoneThumb } from '../ui/ZoneThumb.tsx';
+
+function RunProgress({ item }: { item: CartItem }) {
+  const total = item.amount.kind === 'count' ? item.amount.n : null;
+  return (
+    <div className="run-progress">
+      <p className="run-count t-stat-sm" aria-live="polite">
+        {item.detected}
+        <span className="t-label-sm text-2">{total !== null ? ` / ${total}` : ' shots'}</span>
+      </p>
+      {total !== null && <ProgressBar label="Drill progress" value={(item.detected / total) * 100} />}
+    </div>
+  );
+}
+
+function useWakeLock(active: boolean) {
+  useEffect(() => {
+    if (!active) return;
+    let lock: WakeLockSentinel | null = null;
+    let cancelled = false;
+    const request = async () => {
+      try {
+        const next = await navigator.wakeLock?.request('screen');
+        if (!next) return;
+        if (cancelled) void next.release();
+        else lock = next;
+      } catch {
+        // Wake lock is optional: it can be denied or unsupported.
+      }
+    };
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void request();
+    };
+    void request();
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', onVisible);
+      void lock?.release();
+    };
+  }, [active]);
+}
 
 function DrillCard({ item, index, cart }: { item: CartItem; index: number; cart: CartItem[] }) {
   const { state, actions } = useTraining();
@@ -42,7 +83,7 @@ function DrillCard({ item, index, cart }: { item: CartItem; index: number; cart:
           </div>
         )}
 
-        {item.status === 'running' && <p className="t-body-b text-2">{amountLabel(item.amount)}</p>}
+        {item.status === 'running' && <RunProgress item={item} />}
 
         {!locked && (
           <>
@@ -95,14 +136,17 @@ export function CartScreen() {
   const { state, actions } = useTraining();
   const session = state.session;
   const emptied = session?.phase === 'building' && session.cart.length === 0;
+  useWakeLock(session?.phase === 'running');
   useEffect(() => {
     if (emptied) actions.emptiedCart();
   }, [emptied, actions]);
   if (!session || emptied) return null;
   const { cart } = session;
   const full = cart.length >= MAX_DRILLS;
-  const canStart = session.phase === 'paused' || cart.some((item) => item.status === 'upcoming');
+  const hasUpcoming = cart.some((item) => item.status === 'upcoming');
   const upcoming = cart.filter((item) => item.status === 'upcoming').length;
+  const startable = (session.phase === 'building' || session.phase === 'idle') && hasUpcoming;
+  const finished = session.phase === 'idle' && !hasUpcoming;
 
   return (
     <main className="screen">
@@ -117,6 +161,7 @@ export function CartScreen() {
           <Icon name="add" size={26} /> Add shot
         </button>
         {full && <p className="t-body-sm text-2 center">List is full</p>}
+        {finished && <p className="t-body-b text-2 center">All drills done</p>}
       </div>
       <footer className="float-bar">
         <div className="float-info">
@@ -126,9 +171,15 @@ export function CartScreen() {
             {session.phase !== 'building' && upcoming > 0 && ` · ${upcoming} to go`}
           </p>
         </div>
-        <Button icon={<Icon name="play_arrow" size={26} />} disabled={!canStart} onClick={actions.start}>
-          Start
-        </Button>
+        {startable || session.phase === 'building' ? (
+          <Button icon={<Icon name="play_arrow" size={26} />} disabled={!startable} onClick={actions.start}>
+            Start
+          </Button>
+        ) : (
+          <Button variant="accent" icon={<Icon name="stop" size={26} />} onClick={actions.requestEnd}>
+            End Session
+          </Button>
+        )}
       </footer>
     </main>
   );

@@ -33,7 +33,7 @@ export function TargetScreen() {
         </p>
         <p className="t-caption text-2 center">The net is at the bottom of the court.</p>
       </div>
-      <footer className="float-bar">
+      <footer className="float-bar float-bar-pair">
         <Button full disabled={!draft.targetZone} onClick={actions.confirmTarget}>
           Continue
         </Button>
