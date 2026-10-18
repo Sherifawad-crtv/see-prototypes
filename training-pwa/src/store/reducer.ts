@@ -1,11 +1,11 @@
 import type {
   Amount,
+  Area,
   CartItem,
   Mode,
   Session,
   SessionSummary,
   ShotEvent,
-  ZoneId,
 } from '../domain/types.ts';
 
 export const MAX_DRILLS = 20;
@@ -20,7 +20,7 @@ export type Sheet = null | 'amount' | 'endConfirm' | 'discard' | 'resume' | 'sav
 export interface Draft {
   mode: Mode;
   shotId: string | null;
-  targetZone: ZoneId | null;
+  targetArea: Area | null;
   amount: Amount;
 }
 
@@ -54,8 +54,8 @@ export type Action =
   | { type: 'session/new'; id: string; at: string }
   | { type: 'session/discard' }
   | { type: 'draft/mode'; mode: Mode }
-  | { type: 'draft/pick'; shotId: string; reuseZone: ZoneId | null }
-  | { type: 'draft/zone'; zone: ZoneId }
+  | { type: 'draft/pick'; shotId: string; reuseArea: Area | null }
+  | { type: 'draft/area'; area: Area }
   | { type: 'draft/amount'; amount: Amount }
   | { type: 'cart/add'; id: string }
   | { type: 'cart/move'; id: string; dir: -1 | 1 }
@@ -80,7 +80,7 @@ export const initialState: State = {
   draft: {
     mode: 'free',
     shotId: null,
-    targetZone: null,
+    targetArea: null,
     amount: { kind: 'count', n: DEFAULT_COUNT },
   },
   lastCounts: {},
@@ -138,7 +138,7 @@ function copyOf(source: CartItem, id: string): CartItem {
     amount: source.amount,
     status: 'upcoming',
     detected: 0,
-    ...(source.targetZone ? { targetZone: source.targetZone } : {}),
+    ...(source.targetArea ? { targetArea: source.targetArea } : {}),
   };
 }
 
@@ -194,12 +194,12 @@ export function reducer(state: State, action: Action): State {
         draft: {
           ...state.draft,
           shotId: action.shotId,
-          targetZone: state.draft.mode === 'targeted' ? action.reuseZone : null,
+          targetArea: state.draft.mode === 'targeted' ? action.reuseArea : null,
           amount: { kind: 'count', n: DEFAULT_COUNT },
         },
       };
-    case 'draft/zone':
-      return { ...state, draft: { ...state.draft, targetZone: action.zone } };
+    case 'draft/area':
+      return { ...state, draft: { ...state.draft, targetArea: action.area } };
     case 'draft/amount':
       return {
         ...state,
@@ -209,8 +209,8 @@ export function reducer(state: State, action: Action): State {
     case 'cart/add': {
       const { draft, session } = state;
       if (!session || !draft.shotId || session.cart.length >= MAX_DRILLS) return state;
-      if (draft.mode === 'targeted' && !draft.targetZone) return state;
-      const zone = draft.mode === 'targeted' ? draft.targetZone : null;
+      if (draft.mode === 'targeted' && !draft.targetArea) return state;
+      const area = draft.mode === 'targeted' ? draft.targetArea : null;
       const item: CartItem = {
         id: action.id,
         shotId: draft.shotId,
@@ -218,21 +218,21 @@ export function reducer(state: State, action: Action): State {
         amount: draft.amount,
         status: 'upcoming',
         detected: 0,
-        ...(zone ? { targetZone: zone } : {}),
+        ...(area ? { targetArea: area } : {}),
       };
       const retargeted = session.cart.map((existing) =>
-        zone &&
+        area &&
         existing.status === 'upcoming' &&
         existing.mode === 'targeted' &&
         existing.shotId === draft.shotId
-          ? { ...existing, targetZone: zone }
+          ? { ...existing, targetArea: area }
           : existing,
       );
       return {
         ...state,
         sheet: null,
         session: { ...session, cart: [...retargeted, item] },
-        draft: { ...draft, shotId: null, targetZone: null },
+        draft: { ...draft, shotId: null, targetArea: null },
       };
     }
     case 'cart/move':

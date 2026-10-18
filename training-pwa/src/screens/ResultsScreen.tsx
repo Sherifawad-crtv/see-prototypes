@@ -1,9 +1,9 @@
 import { activity, onTarget, summarise, totals } from '../domain/stats.ts';
-import type { Session } from '../domain/types.ts';
+import type { Area, Session } from '../domain/types.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
 import { ColorBlock, Gauge, Panel, Tile } from '../ui/blocks.tsx';
 import { Button } from '../ui/controls.tsx';
-import { Court, type CourtDot, type CourtZone } from '../ui/Court.tsx';
+import { Court, type CourtDot } from '../ui/Court.tsx';
 import { formatDurationClock } from '../ui/format.ts';
 import { Icon } from '../ui/icons.tsx';
 import { PageHeader } from '../ui/PageHeader.tsx';
@@ -28,12 +28,9 @@ function ResultsBody({ session }: { session: Session }) {
     hit: shot.hit,
   }));
 
-  const zones = new Map<string, CourtZone>();
-  for (const item of session.cart) {
-    if (item.mode === 'targeted' && item.targetZone && session.shots.some((shot) => shot.cartItemId === item.id)) {
-      zones.set(item.targetZone, { id: item.targetZone, emphasis: 'outline' });
-    }
-  }
+  const areas: Area[] = session.cart
+    .filter((item) => item.targetArea && session.shots.some((shot) => shot.cartItemId === item.id))
+    .map((item) => item.targetArea as Area);
 
   return (
     <>
@@ -80,7 +77,7 @@ function ResultsBody({ session }: { session: Session }) {
 
           <Panel icon="my_location" title="Shot Placement" subtitle="Where your shots landed on court">
             <div className="court-stage">
-              <Court mode="results" view="full" dots={dots} zones={[...zones.values()]} />
+              <Court mode="results" view="full" dots={dots} areas={areas} />
             </div>
             {sums.targeted > 0 && (
               <div className="court-legend t-caption">

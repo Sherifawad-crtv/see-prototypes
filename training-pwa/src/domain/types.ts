@@ -8,13 +8,13 @@ export interface ShotType {
 
 export type Mode = 'free' | 'targeted';
 
-export type ZoneId =
-  | 'front-left'
-  | 'front-right'
-  | 'mid-left'
-  | 'mid-right'
-  | 'back-left'
-  | 'back-right';
+/** A rectangle on the opponent half. x runs left to right, y runs from the net (0) to the back wall (1). */
+export interface Area {
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+}
 
 export type Amount = { kind: 'count'; n: number } | { kind: 'basket' };
 
@@ -23,7 +23,7 @@ export interface CartItem {
   shotId: string;
   mode: Mode;
   amount: Amount;
-  targetZone?: ZoneId;
+  targetArea?: Area;
   status: 'upcoming' | 'running' | 'done';
   detected: number;
 }

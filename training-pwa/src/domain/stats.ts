@@ -1,4 +1,4 @@
-import type { CartItem, Mode, Session, SessionSummary, ShotEvent, ZoneId } from './types.ts';
+import type { CartItem, Mode, Session, SessionSummary, ShotEvent } from './types.ts';
 
 export interface ModeTotals {
   total: number;
@@ -8,7 +8,6 @@ export interface ModeTotals {
 
 export interface OnTargetRow {
   shotId: string;
-  zones: ZoneId[];
   hits: number;
   total: number;
   pct: number;
@@ -45,19 +44,15 @@ export function totals(session: Session): ModeTotals {
 
 export function onTarget(session: Session): OnTargetStats {
   const shots = shotsInMode(session, 'targeted');
-  const items = itemsById(session);
-  const rows = new Map<string, { zones: Set<ZoneId>; hits: number; total: number }>();
+  const rows = new Map<string, { hits: number; total: number }>();
   for (const shot of shots) {
-    const row = rows.get(shot.shotId) ?? { zones: new Set<ZoneId>(), hits: 0, total: 0 };
-    const zone = items.get(shot.cartItemId)?.targetZone;
-    if (zone) row.zones.add(zone);
+    const row = rows.get(shot.shotId) ?? { hits: 0, total: 0 };
     row.total += 1;
     if (shot.hit) row.hits += 1;
     rows.set(shot.shotId, row);
   }
   const byShot = [...rows.entries()].map(([shotId, row]) => ({
     shotId,
-    zones: [...row.zones],
     hits: row.hits,
     total: row.total,
     pct: pct(row.hits, row.total),

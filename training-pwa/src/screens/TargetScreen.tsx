@@ -1,5 +1,4 @@
 import { shotLabel } from '../domain/catalog.ts';
-import { getZone } from '../domain/zones.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
 import { Button } from '../ui/controls.tsx';
 import { Court } from '../ui/Court.tsx';
@@ -15,26 +14,24 @@ export function TargetScreen() {
     <main className="screen">
       <PageHeader
         title={`Where should your ${shotLabel(draft.shotId)} land?`}
-        subtitle="Tap one zone"
+        subtitle="Drag on the court to draw your target"
         onBack={actions.back}
         steps={{ current: 1, labels: STEPS.targeted }}
       />
       <div className="screen-body">
         <div className="court-stage">
-          <Court
-            mode="select"
-            view="half"
-            selectedZone={draft.targetZone}
-            onSelectZone={actions.setZone}
-          />
+          <div className="court-fit">
+            <Court mode="select" view="full" area={draft.targetArea} onAreaChange={actions.setArea} />
+          </div>
         </div>
-        <p className="t-h3 center zone-caption" aria-live="polite">
-          {draft.targetZone ? getZone(draft.targetZone).label : 'No zone picked yet'}
+        <p className="t-caption text-2 center" aria-live="polite">
+          {draft.targetArea
+            ? 'Drag the box to move it. Pull the squares to resize it.'
+            : 'Press and drag to draw a box, or tap for a standard one.'}
         </p>
-        <p className="t-caption text-2 center">The net is at the bottom of the court.</p>
       </div>
       <footer className="float-bar float-bar-pair">
-        <Button full disabled={!draft.targetZone} onClick={actions.confirmTarget}>
+        <Button full disabled={!draft.targetArea} onClick={actions.confirmTarget}>
           Continue
         </Button>
       </footer>

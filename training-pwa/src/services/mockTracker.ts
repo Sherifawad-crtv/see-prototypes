@@ -1,6 +1,6 @@
 import type { CartItem, ShotEvent } from '../domain/types.ts';
 import { getShot } from '../domain/catalog.ts';
-import { getZone, zoneAt } from '../domain/zones.ts';
+import { areaCentre, inArea, inBounds } from '../domain/court.ts';
 import { BASKET_SIZE } from './contracts.ts';
 import type { TrackerService } from './contracts.ts';
 
@@ -29,11 +29,11 @@ function drillSize(item: CartItem): number {
 }
 
 function sampleLanding(item: CartItem): { x: number; y: number } {
-  if (item.mode === 'targeted' && item.targetZone) {
-    const zone = getZone(item.targetZone);
+  if (item.mode === 'targeted' && item.targetArea) {
+    const centre = areaCentre(item.targetArea);
     return {
-      x: normal(zone.cx, trackerConfig.targetedSigma),
-      y: normal(zone.cy, trackerConfig.targetedSigma),
+      x: normal(centre.x, trackerConfig.targetedSigma),
+      y: normal(centre.y, trackerConfig.targetedSigma),
     };
   }
   return {
@@ -104,16 +104,16 @@ export class MockTracker implements TrackerService {
     if (this.remaining > 0) {
       this.remaining -= 1;
       const landing = sampleLanding(item);
-      const inBounds = zoneAt(landing.x, landing.y) !== null;
+      const landed = inBounds(landing.x, landing.y);
       const event: ShotEvent = {
         id: crypto.randomUUID(),
         cartItemId: item.id,
         shotId: item.shotId,
         at: new Date().toISOString(),
         landing,
-        inBounds,
+        inBounds: landed,
         ...(item.mode === 'targeted'
-          ? { hit: inBounds && zoneAt(landing.x, landing.y) === item.targetZone }
+          ? { hit: landed && item.targetArea !== undefined && inArea(item.targetArea, landing.x, landing.y) }
           : {}),
       };
       this.shotListeners.forEach((cb) => cb(event));

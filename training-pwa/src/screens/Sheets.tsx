@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import { shotLabel } from '../domain/catalog.ts';
-import { getZone } from '../domain/zones.ts';
+import { areaLabel } from '../domain/court.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
 import { DEFAULT_COUNT, MAX_DRILLS } from '../store/reducer.ts';
 import { AmountControl } from '../ui/AmountControl.tsx';
 import { Button, Chip, IconButton } from '../ui/controls.tsx';
 import { Icon } from '../ui/icons.tsx';
 import { Sheet } from '../ui/Sheet.tsx';
-import { ZoneThumb } from '../ui/ZoneThumb.tsx';
+import { AreaThumb } from '../ui/AreaThumb.tsx';
 
 const SAVED_MS = 1800;
 
@@ -41,12 +41,12 @@ function AmountSheet() {
           <Icon name="close" size={24} />
         </IconButton>
       </div>
-      {draft.mode === 'targeted' && draft.targetZone && (
+      {draft.mode === 'targeted' && draft.targetArea && (
         <div className="sheet-target">
-          <ZoneThumb zone={draft.targetZone} />
+          <AreaThumb area={draft.targetArea} />
           <div className="stack-4">
             <p className="t-overline-sm text-2">Aiming for</p>
-            <Chip accent>{getZone(draft.targetZone).label}</Chip>
+            <Chip accent>{areaLabel(draft.targetArea)}</Chip>
           </div>
           <Button variant="ghost" className="btn-sm" onClick={actions.changeTarget}>
             Change

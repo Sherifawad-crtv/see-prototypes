@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { shotLabel } from '../domain/catalog.ts';
 import type { CartItem } from '../domain/types.ts';
-import { getZone } from '../domain/zones.ts';
+import { areaLabel } from '../domain/court.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
 import { canMove, DEFAULT_COUNT, MAX_DRILLS } from '../store/reducer.ts';
 import { AmountControl } from '../ui/AmountControl.tsx';
@@ -9,7 +9,7 @@ import { Badge, Button, IconButton, ProgressBar } from '../ui/controls.tsx';
 import { modeBadgeText, plural } from '../ui/format.ts';
 import { Icon } from '../ui/icons.tsx';
 import { PageHeader } from '../ui/PageHeader.tsx';
-import { ZoneThumb } from '../ui/ZoneThumb.tsx';
+import { AreaThumb } from '../ui/AreaThumb.tsx';
 
 function RunProgress({ item }: { item: CartItem }) {
   const total = item.amount.kind === 'count' ? item.amount.n : null;
@@ -73,12 +73,12 @@ function DrillCard({ item, index, cart }: { item: CartItem; index: number; cart:
           )}
         </div>
 
-        {item.mode === 'targeted' && item.targetZone && (
+        {item.mode === 'targeted' && item.targetArea && (
           <div className="drill-target">
-            <ZoneThumb zone={item.targetZone} />
+            <AreaThumb area={item.targetArea} />
             <div>
               <p className="t-overline-sm text-2">Aiming for</p>
-              <p className="t-label">{getZone(item.targetZone).label}</p>
+              <p className="t-label">{areaLabel(item.targetArea)}</p>
             </div>
           </div>
         )}

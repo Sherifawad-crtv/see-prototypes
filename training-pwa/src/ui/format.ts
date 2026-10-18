@@ -1,3 +1,4 @@
+import { areaLabel } from '../domain/court.ts';
 import type { Amount, CartItem } from '../domain/types.ts';
 
 export function formatDate(iso: string): string {
@@ -31,5 +32,5 @@ export function amountLabel(amount: Amount): string {
 }
 
 export function modeBadgeText(item: CartItem): string {
-  return item.mode === 'targeted' ? `Target: ${item.targetZone}` : 'Free';
+  return item.mode === 'targeted' && item.targetArea ? `Target: ${areaLabel(item.targetArea)}` : 'Free';
 }
