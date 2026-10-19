@@ -13,6 +13,7 @@ function StartButton({ onClick }: { onClick: () => void }) {
   return (
     <Button
       full
+      data-tour="start"
       variant="accent"
       className="btn-end-icon"
       icon={<Icon name="arrow_forward" size={22} />}
@@ -71,7 +72,14 @@ export function TrainingScreen() {
 
   return (
     <main className="screen">
-      <PageHeader title="Training" />
+      <PageHeader
+        title="Training"
+        trailing={
+          <Button variant="secondary" className="btn-sm" onClick={() => actions.setTour(0)}>
+            Tutorial
+          </Button>
+        }
+      />
       <div className="screen-body">
         {empty ? (
           <div className="empty-state">

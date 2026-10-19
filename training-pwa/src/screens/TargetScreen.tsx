@@ -40,7 +40,7 @@ export function TargetScreen() {
         steps={{ current: 1, labels: STEPS.targeted }}
       />
       <div className="screen-body">
-        <div className="zone-chips" role="group" aria-label="Zones">
+        <div className="zone-chips" data-tour="zones" role="group" aria-label="Zones">
           {zones.map((z, i) => (
             <Chip key={i} selected={i === current} onClick={() => setActive(i)}>
               {`Zone ${i + 1} · ${z.length}`}
@@ -57,7 +57,7 @@ export function TargetScreen() {
             </Chip>
           )}
         </div>
-        <div className="court-stage">
+        <div className="court-stage" data-tour="court">
           <Court mode="select" view="half" zones={zones} activeZone={current} onZonesChange={actions.setZones} />
         </div>
         <p className="t-caption text-2 center" aria-live="polite">
@@ -70,7 +70,7 @@ export function TargetScreen() {
         </div>
       </div>
       <footer className="float-bar float-bar-pair">
-        <Button full disabled={!ready} onClick={actions.confirmTarget}>
+        <Button full data-tour="continue" disabled={!ready} onClick={actions.confirmTarget}>
           Continue
         </Button>
       </footer>

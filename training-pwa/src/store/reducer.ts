@@ -41,6 +41,8 @@ export interface State {
   draft: Draft;
   lastCounts: Record<string, number>;
   toast: Toast | null;
+  /** Index of the tutorial step on screen, or null when the tutorial is closed. */
+  tour: number | null;
 }
 
 export type Action =
@@ -54,6 +56,7 @@ export type Action =
   | { type: 'toast/clear'; id: number }
   | { type: 'session/new'; id: string; at: string }
   | { type: 'session/discard' }
+  | { type: 'tour'; step: number | null }
   | { type: 'draft/mode'; mode: Mode }
   | { type: 'draft/pick'; shotId: string; reuseZones: Zone[] }
   | { type: 'draft/zones'; zones: Zone[] }
@@ -86,6 +89,7 @@ export const initialState: State = {
   },
   lastCounts: {},
   toast: null,
+  tour: null,
 };
 
 export function runningItem(session: Session | null): CartItem | undefined {
@@ -184,6 +188,8 @@ export function reducer(state: State, action: Action): State {
           shots: [],
         },
       };
+    case 'tour':
+      return { ...state, tour: action.step };
     case 'session/discard':
       return { ...state, session: null, sheet: null };
     case 'draft/mode':

@@ -101,14 +101,26 @@ function createActions(
       dispatch({ type: 'session/discard' });
       nav.leave();
     },
+    setTour(step: number | null) {
+      dispatch({ type: 'tour', step });
+    },
+    /** Close the tutorial and drop the demo list it built. */
+    exitTour() {
+      dispatch({ type: 'tour', step: null });
+      if (getState().stack.at(-1) === 'training') return;
+      dispatch({ type: 'session/discard' });
+      dispatch({ type: 'draft/zones', zones: [] });
+      dispatch({ type: 'draft/mode', mode: 'free' });
+      nav.popTo('training');
+    },
     setMode(mode: Mode) {
       dispatch({ type: 'draft/mode', mode });
     },
-    pickShot(shotId: string) {
-      const { session, draft } = getState();
-      const reuseZones = draft.mode === 'targeted' ? reusableZones(session, shotId) : [];
+    pickShot(shotId: string, mode: Mode = getState().draft.mode) {
+      const { session } = getState();
+      const reuseZones = mode === 'targeted' ? reusableZones(session, shotId) : [];
       dispatch({ type: 'draft/pick', shotId, reuseZones });
-      if (draft.mode === 'targeted' && reuseZones.length === 0) nav.push('target');
+      if (mode === 'targeted' && reuseZones.length === 0) nav.push('target');
       else dispatch({ type: 'sheet', sheet: 'amount' });
     },
     setZones(zones: Zone[]) {

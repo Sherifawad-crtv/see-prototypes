@@ -494,3 +494,12 @@ button.chip::after { content: ''; position: absolute; inset: -4px 0; }
 .zone-open { fill: none; stroke-dasharray: 6 5; }
 .cone-idle { opacity: 0.7; }
 .zone-chips { display: flex; flex-wrap: wrap; gap: var(--s-8); justify-content: center; }
+
+/* tutorial overlay */
+.tour { position: fixed; inset: 0; z-index: var(--z-toast); }
+.tour-dim { position: absolute; inset: 0; }
+.tour-fill { fill: rgb(3 7 18 / 0.72); }
+.tour-ring { fill: none; stroke: var(--neutral-0); stroke-opacity: 0.9; stroke-width: 2px; }
+.tour-card { position: absolute; left: var(--margin); right: var(--margin); max-width: 400px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--s-8); padding: var(--s-16); border-radius: var(--r-2xl); background: var(--neutral-0); box-shadow: var(--shadow-nav); }
+.tour-next { min-width: 88px; }
+.tour-close { position: absolute; left: 50%; bottom: calc(var(--s-24) + env(safe-area-inset-bottom)); transform: translateX(-50%); width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--neutral-0); color: var(--text); box-shadow: var(--shadow-card); }

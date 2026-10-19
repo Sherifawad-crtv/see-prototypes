@@ -32,6 +32,7 @@ export function AddShotScreen() {
         steps={{ current: 0, labels: STEPS[draft.mode] }}
       />
       <div className="screen-body">
+        <div className="stack-12" data-tour="modes">
         <Tabs label="Training mode" value={draft.mode} options={MODES} onChange={actions.setMode} />
         <div className="mode-note">
           <span className="mode-note-icon">
@@ -40,10 +41,11 @@ export function AddShotScreen() {
           <p className="t-body-sm">
             {draft.mode === 'free'
               ? 'Hit anywhere. The camera tracks where every shot lands.'
-              : 'Pick a zone to aim for. Every shot is scored as a hit or a miss.'}
+              : 'Place cones to mark where to aim. Every shot is scored as a hit or a miss.'}
           </p>
         </div>
-        <div className="shot-list">
+        </div>
+        <div className="shot-list" data-tour="shots">
           {SHOTS.map((shot) => {
             const inList = cart.filter((item) => item.shotId === shot.id).length;
             const selected = sheet === 'amount' && draft.shotId === shot.id;

@@ -7,6 +7,7 @@ import { TargetScreen } from './screens/TargetScreen.tsx';
 import { TrainingScreen } from './screens/TrainingScreen.tsx';
 import { useTraining } from './store/TrainingProvider.tsx';
 import type { Screen } from './store/reducer.ts';
+import { Tour } from './ui/Tour.tsx';
 import { Tooltip } from './ui/controls.tsx';
 import { IconGradients } from './ui/icons.tsx';
 
@@ -33,6 +34,7 @@ export function App() {
       <div className="toast-host" aria-live="polite">
         {state.toast && <Tooltip key={state.toast.id}>{state.toast.text}</Tooltip>}
       </div>
+      <Tour />
       {DEV && <DevPanel />}
     </div>
   );
