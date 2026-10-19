@@ -5,24 +5,11 @@ import { zonesLabel } from '../domain/court.ts';
 import { useTraining } from '../store/TrainingProvider.tsx';
 import { canMove, DEFAULT_COUNT, MAX_DRILLS } from '../store/reducer.ts';
 import { AmountControl } from '../ui/AmountControl.tsx';
-import { Badge, Button, IconButton, ProgressBar } from '../ui/controls.tsx';
+import { Badge, Button, IconButton } from '../ui/controls.tsx';
 import { modeBadgeText, plural } from '../ui/format.ts';
 import { Icon } from '../ui/icons.tsx';
 import { PageHeader } from '../ui/PageHeader.tsx';
 import { AreaThumb } from '../ui/AreaThumb.tsx';
-
-function RunProgress({ item }: { item: CartItem }) {
-  const total = item.amount.kind === 'count' ? item.amount.n : null;
-  return (
-    <div className="run-progress">
-      <p className="run-count t-stat-sm" aria-live="polite">
-        {item.detected}
-        <span className="t-label-sm text-2">{total !== null ? ` / ${total}` : ' shots'}</span>
-      </p>
-      {total !== null && <ProgressBar label="Drill progress" value={(item.detected / total) * 100} />}
-    </div>
-  );
-}
 
 function useWakeLock(active: boolean) {
   useEffect(() => {
@@ -82,8 +69,6 @@ function DrillCard({ item, index, cart }: { item: CartItem; index: number; cart:
             </div>
           </div>
         )}
-
-        {item.status === 'running' && <RunProgress item={item} />}
 
         {!locked && (
           <>
